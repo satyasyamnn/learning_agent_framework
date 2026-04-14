@@ -10,7 +10,7 @@
 // - Tool invocation and result handling
 //
 // Use Case: When you need the agent to perform specific actions or access external data
-// through predefined functions. The agent decides when and how to call these tools.
+// through predefined functions in a supply chain or customs workflow.
 
 using System.ComponentModel;
 using Azure;
@@ -34,37 +34,39 @@ var deploymentName = config["AzureOpenAI:DeploymentName"]
 var apiKey = config["AzureOpenAI:ApiKey"];
 var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
 
-Console.WriteLine("=== Agent with Tools Example ===\n");
+Console.WriteLine("=== Agent with Tools Example (Supply Chain + Customs) ===\n");
 
 // Define tools as attributed methods
 // The Description attributes help the LLM understand what each tool/parameter does
 
-[Description("Get the current weather for a specified location.")]
-static string GetWeather([Description("The city name to get weather for")] string city)
-    => city.ToLower() switch
+[Description("Get shipment risk status for a specified port.")]
+static string GetPortRiskStatus([Description("The port name to check risk status for")] string port)
+    => port.ToLower() switch
     {
-        "london" => "Rainy, 12°C",
-        "paris" => "Cloudy, 14°C",
-        "sydney" => "Sunny, 25°C",
-        "new york" => "Partly cloudy, 18°C",
-        _ => "Unable to get weather for this location"
+        "singapore" => "Low disruption risk, customs throughput normal",
+        "rotterdam" => "Moderate disruption risk, berth congestion observed",
+        "los angeles" => "High disruption risk, vessel queue extended",
+        "dubai" => "Low disruption risk, inspections on schedule",
+        _ => "Unable to retrieve risk status for this port"
     };
 
-[Description("Convert temperature from Celsius to Fahrenheit.")]
-static double ConvertCelsiusToFahrenheit([Description("Temperature in Celsius")] double celsius)
+[Description("Estimate customs duty amount from declared value and duty rate.")]
+static double EstimateCustomsDuty(
+    [Description("Declared shipment value in USD")] double declaredValue,
+    [Description("Duty rate as a percentage (for example, 8.5 for 8.5%)")] double dutyRatePercent)
 {
-    return (celsius * 9 / 5) + 32;
+    return declaredValue * (dutyRatePercent / 100);
 }
 
-[Description("Get the population of a city.")]
-static string GetCityPopulation([Description("The city name")] string city)
-    => city.ToLower() switch
+[Description("Get the average customs clearance time for a port.")]
+static string GetPortClearanceTime([Description("The port name")] string port)
+    => port.ToLower() switch
     {
-        "london" => "8.9 million",
-        "paris" => "2.2 million",
-        "sydney" => "5.3 million",
-        "new york" => "8.3 million",
-        _ => "Unknown city"
+        "singapore" => "14 hours",
+        "rotterdam" => "20 hours",
+        "los angeles" => "36 hours",
+        "dubai" => "18 hours",
+        _ => "Unknown port"
     };
 
 // Create agent with tools
@@ -75,37 +77,30 @@ var azureOpenAIClient = string.IsNullOrWhiteSpace(apiKey)
 var chatClient = azureOpenAIClient.GetChatClient(deploymentName);
 
 AIAgent agent = chatClient.AsAIAgent(
-    instructions: "You are a helpful travel assistant. Use the available tools to answer questions about weather, temperature conversion, and city information. Always provide helpful and accurate information.",
+    instructions: "You are a helpful supply chain and customs operations assistant. Use the available tools to answer questions about port risk status, customs duty estimation, and clearance time. Always provide helpful and accurate information.",
     tools:
     [
-        AIFunctionFactory.Create(GetWeather),
-        AIFunctionFactory.Create(ConvertCelsiusToFahrenheit),
-        AIFunctionFactory.Create(GetCityPopulation)
+        AIFunctionFactory.Create(GetPortRiskStatus),
+        AIFunctionFactory.Create(EstimateCustomsDuty),
+        AIFunctionFactory.Create(GetPortClearanceTime)
     ]);
 
-Console.WriteLine(">>> Example 1: Query weather (agent will use GetWeather tool)\n");
-string response = (await agent.RunAsync("What's the weather like in Paris?")).Text;
+Console.WriteLine(">>> Example 1: Query port risk status (agent will use GetPortRiskStatus tool)\n");
+string response = (await agent.RunAsync("What is the current disruption risk status at Rotterdam port?")).Text;
 Console.WriteLine($"Response: {response}\n");
 
-Console.WriteLine(">>> Example 2: Convert temperature (agent will use ConvertCelsiusToFahrenheit tool)\n");
-response = (await agent.RunAsync("Convert 20 degrees Celsius to Fahrenheit and tell me what that means for London weather.")).Text;
+Console.WriteLine(">>> Example 2: Estimate customs duty (agent will use EstimateCustomsDuty tool)\n");
+response = (await agent.RunAsync("Estimate duty for a shipment valued at 120000 USD with a duty rate of 7.5%. Include a short operational note.")).Text;
 Console.WriteLine($"Response: {response}\n");
 
 Console.WriteLine(">>> Example 3: Streaming with tool usage\n");
 await foreach (var update in agent.RunStreamingAsync(
-    "Tell me about Sydney's weather and population, then convert the temperature to Fahrenheit."))
+    "Summarize Los Angeles port risk and average clearance time, then estimate duty for 85000 USD at 5%."))
 {
     Console.Write(update);
 }
 Console.WriteLine("\n");
 
 Console.WriteLine(">>> Example 4: Tool usage across multiple queries\n");
-response = (await agent.RunAsync("What's colder: London or New York? Convert the coldest temperature to Fahrenheit.")).Text;
+response = (await agent.RunAsync("Which port has lower disruption risk: Singapore or Los Angeles? Also estimate duty on 50000 USD at 4%.")).Text;
 Console.WriteLine($"Response: {response}\n");
-
-Console.WriteLine("✓ Agent with tools example completed!");
-Console.WriteLine("\nKey Takeaway:");
-Console.WriteLine("- Tools extend agent capabilities");
-Console.WriteLine("- Use [Description] attributes for clarity");
-Console.WriteLine("- Agent intelligently decides when to use which tool");
-Console.WriteLine("- Still single-turn unless using sessions");

@@ -14,6 +14,7 @@ A progressive showcase of the **Microsoft Agent Framework** (`Microsoft.Agents.A
 | 0b | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
 | 0c | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed (educational) |
 | 0d | `03-proper-session-multiturn` | 💾 Session-Based Multi-Turn | Context persistence, serialization |
+| 0e | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
 
 ---
 
@@ -155,8 +156,33 @@ var json = await agent.SerializeSessionAsync(session);
 
 ---
 
+### Fundamentals 0e: Structured Output for Customs (📋 Structured Output)
+
+**Pattern:** Structured JSON output via response schema, typed responses, and streaming assembly
+
+| Detail | Value |
+| ------- | ------- |
+| Project | `04-structured-output-customs` |
+| Agent | `CustomsStructuredOutputAgent` |
+| Key API | `ChatResponseFormat.ForJsonSchema<T>()`, `RunAsync<T>()`, `RunStreamingAsync()` |
+| Output Type | `CustomsClearanceAssessment` |
+
+Shows how to constrain the model output to a strongly typed customs clearance schema. The sample demonstrates three patterns: response-format JSON text, generic typed output, and streaming output reassembly plus deserialization.
+
+```csharp
+var response = await agent.RunAsync<CustomsClearanceAssessment>(
+    "Assess shipment CSH-3017 to Germany with HS code 854231 and duty rate 4.2%.");
+
+Console.WriteLine(response.Result.RiskLevel);
+Console.WriteLine(response.Result.EstimatedDutyUsd);
+```
+
+---
+
 
 ## Architecture Overview
+
+If you are viewing this in VS Code and the diagram is blank or not rendered, install the `Markdown Preview Mermaid Support` extension (`bierner.markdown-mermaid`) and use `Markdown: Open Preview to the Side`.
 
 ```mermaid
 graph LR
