@@ -1,0 +1,43 @@
+<Solution>
+  <Folder Name="/samples/" />
+  <Folder Name="/samples/01-supply-chain/" />
+  <Folder Name="/samples/01-supply-chain/SupplyChain.DisruptionAlert/">
+    <Project Path="samples/01-supply-chain/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert.csproj" />
+  </Folder>
+  <Folder Name="/samples/01-supply-chain/SupplyChain.OrderTracking/">
+    <Project Path="samples/01-supply-chain/SupplyChain.OrderTracking/SupplyChain.OrderTracking/SupplyChain.OrderTracking.csproj" />
+  </Folder>
+  <Folder Name="/samples/01-supply-chain/SupplyChain.SupplierOrchestration/">
+    <Project Path="samples/01-supply-chain/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration.csproj" />
+  </Folder>
+  <Folder Name="/samples/02-customs/" />
+  <Folder Name="/samples/02-customs/Customs.ClearanceOrchestration/">
+    <Project Path="samples/02-customs/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration.csproj" />
+  </Folder>
+  <Folder Name="/samples/02-customs/Customs.ComplianceCheck/">
+    <Project Path="samples/02-customs/Customs.ComplianceCheck/Customs.ComplianceCheck/Customs.ComplianceCheck.csproj" />
+  </Folder>
+  <Folder Name="/samples/02-customs/Customs.DocumentReview/">
+    <Project Path="samples/02-customs/Customs.DocumentReview/Customs.DocumentReview/Customs.DocumentReview.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/" />
+  <Folder Name="/samples/00-fundamentals/00-simple-agent/">
+    <Project Path="samples/00-fundamentals/00-simple-agent/00-simple-agent/00-simple-agent.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/01-agent-with-tools/">
+    <Project Path="samples/00-fundamentals/01-agent-with-tools/01-agent-with-tools/01-agent-with-tools.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/02-anti-pattern-without-session/">
+    <Project Path="samples/00-fundamentals/02-anti-pattern-without-session/02-anti-pattern-without-session/02-anti-pattern-without-session.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/03-proper-session-multiturn/">
+    <Project Path="samples/00-fundamentals/03-proper-session-multiturn/03-proper-session-multiturn/03-proper-session-multiturn.csproj" />
+  </Folder>
+  <Folder Name="/shared/" />
+  <Folder Name="/shared/MockDataServices/">
+    <Project Path="shared/MockDataServices/MockDataServices/MockDataServices.csproj" />
+  </Folder>
+  <Folder Name="/shared/SharedModels/">
+    <Project Path="shared/SharedModels/SharedModels/SharedModels.csproj" />
+  </Folder>
+</Solution>
