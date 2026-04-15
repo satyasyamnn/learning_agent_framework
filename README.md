@@ -1,25 +1,40 @@
 # Microsoft Agent Framework — Supply Chain & Customs Samples
 
-A progressive showcase of the **Microsoft Agent Framework** (`Microsoft.Agents.AI` v1.1.0) in **.NET 10 / C# 13**, demonstrating the full spectrum from single-agent tool use to complex multi-agent orchestration workflows across two real-world domains: **Supply Chain** and **Customs Clearance**.
+A knowledge sharing collection for building Agents using **Microsoft Agent Framework** (`Microsoft.Agents.AI` v1.1.0) in **.NET 10 / C# 13**, showcasing the full spectrum from single-agent tool use to complex multi-agent orchestration workflows across two real-world domains: **Supply Chain** and **Customs Clearance**.
 
 ---
 
 ## Fundamentals (00) — Agent Framework Basics
 
-**Progressive learning path** for developers new to the Microsoft Agent Framework. These examples build from basic concepts to advanced patterns, providing a solid foundation before exploring the domain-specific samples.
+**Fundamentals** sharing knowledge about the Microsoft Agent Framework. These examples demonstrate concepts from foundational patterns to advanced techniques, offering context before exploring the domain-specific samples.
 
 | Sample | Project | Concept | Key Feature |
 | ------- | ------- | --------- | ------------ |
-| 0a | `00-simple-agent` | 🤖 Basic Agent Creation | Single-turn interactions, no tools |
-| 0b | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
-| 0c | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed (educational) |
-| 0d | `03-proper-session-multiturn` | 💾 Session-Based Multi-Turn | Context persistence, serialization |
-| 0e | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
-| 0f | `05-reasoning-effort-customs` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
+| 01 | `00-simple-agent` | 🤖 Basic Agent Creation | Single-turn interactions, no tools |
+| 02 | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
+| 03 | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed (educational) |
+| 04 | `03-proper-session-multiturn` | 💾 Token Management in Sessions | Context persistence, token tracking per turn |
+| 05 | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
+| 06 | `05-reasoning-effort-customs` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
 
 ---
 
-## Framework Concepts — Progression Map
+## NuGet Packages
+
+| Package | Version | Used for |
+| ------- | ------- | ---------- |
+| `Microsoft.Agents.AI` | 1.1.0 | `AIAgent`, `AgentSession`, `AIFunctionFactory` |
+| `Microsoft.Agents.AI.OpenAI` | 1.1.0 | `AsAIAgent()` extension on `ChatClient` |
+| `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
+| `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
+| `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
+| `Microsoft.Extensions.Configuration.Json` | 10.0.0 | `appsettings.json` loading |
+
+> **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
+
+---
+
+## Framework Concepts — Overview Map
 
 ```mermaid
 flowchart LR
@@ -43,7 +58,7 @@ flowchart LR
 
 
 
-### Fundamentals 0a: Simple Agent (🤖 Basic Agent Creation)
+### Fundamentals 01: Simple Agent (🤖 Basic Agent Creation)
 
 **Pattern:** Basic agent creation and single-turn interactions
 
@@ -66,7 +81,7 @@ Console.WriteLine(response.Text);
 
 ---
 
-### Fundamentals 0b: Agent with Tools (🔧 Agent + Tools)
+### Fundamentals 02: Agent with Tools (🔧 Agent + Tools)
 
 **Pattern:** Agent with function calling capabilities
 
@@ -96,9 +111,9 @@ Console.WriteLine(response.Text);
 
 ---
 
-### Fundamentals 0c: Anti-Pattern Without Session (⚠️ Session Anti-Pattern)
+### Fundamentals 03: Anti-Pattern Without Session (⚠️ Session Anti-Pattern)
 
-**Pattern:** Demonstrates why sessions are needed (educational example)
+**Pattern:** Demonstrates why sessions are needed and the consequences of stateless design
 
 | Detail | Value |
 | ------- | ------- |
@@ -107,7 +122,7 @@ Console.WriteLine(response.Text);
 | Key API | Multiple `RunAsync()` calls without session |
 | Tools | None |
 
-**Educational example** showing what happens when you try multi-turn conversations without session memory. Each call to `RunAsync()` is completely independent, so the agent has no memory of previous turns.
+**Pattern demonstration** showing what happens when you try multi-turn conversations without session memory. Each call to `RunAsync()` is completely independent, so the agent has no memory of previous turns. This illustrates the importance of proper session management.
 
 ```csharp
 var agent = azureOpenAI.GetChatClient(deployment)
@@ -124,18 +139,18 @@ Console.WriteLine(response2.Text); // Agent doesn't know!
 
 ---
 
-### Fundamentals 0d: Proper Session Multi-Turn (💾 Session-Based Multi-Turn)
+### Fundamentals 04: Proper Session Multi-Turn (💾 Token Management in Sessions)
 
-**Pattern:** Correct multi-turn conversations with session persistence
+**Pattern:** Correct multi-turn conversations with session persistence and token usage tracking
 
 | Detail | Value |
 | ------- | ------- |
 | Project | `03-proper-session-multiturn` |
 | Agent | `SessionAgent` |
-| Key API | `CreateSessionAsync()`, `RunAsync(session)`, `SerializeSessionAsync()` |
+| Key API | `CreateSessionAsync()`, `RunAsync(session)`, `SerializeSessionAsync()`, `TokenUsage` |
 | Tools | None |
 
-Demonstrates proper multi-turn conversations using `AgentSession` for context persistence. The agent remembers information across turns and can be serialized/deserialized for persistence.
+Demonstrates proper multi-turn conversations using `AgentSession` for context persistence with token usage tracking. The agent remembers information across turns, tracks cumulative token consumption (input/output/cache tokens), and can be serialized/deserialized for persistence. Each turn reports token metrics to understand API costs and quota management.
 
 ```csharp
 var agent = azureOpenAI.GetChatClient(deployment)
@@ -146,10 +161,12 @@ var session = await agent.CreateSessionAsync();
 // Turn 1
 var response1 = await agent.RunAsync("My name is Alice", session);
 Console.WriteLine(response1.Text);
+Console.WriteLine($"Turn 1 — Input: {response1.InputTokenCount}, Output: {response1.OutputTokenCount}");
 
-// Turn 2 — Agent remembers!
+// Turn 2 — Agent remembers and tracks tokens!
 var response2 = await agent.RunAsync("What's my name?", session);
 Console.WriteLine(response2.Text); // Agent correctly says "Alice"
+Console.WriteLine($"Turn 2 — Input: {response2.InputTokenCount}, Output: {response2.OutputTokenCount}");
 
 // Serialize session for persistence
 var json = await agent.SerializeSessionAsync(session);
@@ -157,7 +174,7 @@ var json = await agent.SerializeSessionAsync(session);
 
 ---
 
-### Fundamentals 0e: Structured Output for Customs (📋 Structured Output)
+### Fundamentals 05: Structured Output for Customs (📋 Structured Output)
 
 **Pattern:** Structured JSON output via response schema, typed responses, and streaming assembly
 
@@ -180,6 +197,50 @@ Console.WriteLine(response.Result.EstimatedDutyUsd);
 
 ---
 
+### Fundamentals 06: Reasoning Effort Controls (🧠 Reasoning Effort Controls)
+
+**Pattern:** Reasoning effort configuration to optimize cost, latency, and quality trade-offs
+
+| Detail | Value |
+| ------- | ------- |
+| Project | `05-reasoning-effort-customs` |
+| Agent | `ReasoningEffortAgent` |
+| Key API | `ChatClientAgentOptions`, `MaxCompletionTokens`, Reasoning effort levels |
+| Modes | `Baseline`, `Minimal`, `High` |
+
+Demonstrates how to switch reasoning effort levels (when using reasoning models) to balance complexity, cost, and latency. Lower effort uses faster heuristics; higher effort uses extended thinking for complex problems. This sample shows three configurations on the same customs assessment task, comparing token usage and reasoning depth.
+
+```csharp
+// Baseline reasoning (default, balanced)
+var baselineOptions = new ChatClientAgentOptions { };
+var baselineAgent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions { });
+var baselineResponse = await baselineAgent.RunAsync<CustomsAssessment>(prompt);
+Console.WriteLine($"Baseline - Tokens: {baselineResponse.OutputTokenCount}");
+
+// Minimal reasoning (faster, lower cost)
+var minimalOptions = new ChatClientAgentOptions 
+{ 
+    MaxCompletionTokens = 1000 
+};
+var minimalAgent = chatClient.AsAIAgent(instructions: "...", minimalOptions);
+var minimalResponse = await minimalAgent.RunAsync<CustomsAssessment>(prompt);
+Console.WriteLine($"Minimal - Tokens: {minimalResponse.OutputTokenCount}");
+
+// High reasoning (extended thinking, higher accuracy for complex decisions)
+var highOptions = new ChatClientAgentOptions 
+{ 
+    MaxCompletionTokens = 16000 
+};
+var highAgent = chatClient.AsAIAgent(instructions: "...", highOptions);
+var highResponse = await highAgent.RunAsync<CustomsAssessment>(prompt);
+Console.WriteLine($"High - Tokens: {highResponse.OutputTokenCount}");
+
+// Compare results and costs
+Console.WriteLine($"Baseline risk score: {baselineResponse.Result.RiskScore}");
+Console.WriteLine($"High reasoning risk score: {highResponse.Result.RiskScore}");
+```
+
+---
 
 ## Architecture Overview
 
@@ -571,18 +632,70 @@ foreach (var evt in run.OutgoingEvents.OfType<WorkflowOutputEvent>())
 
 ---
 
-## NuGet Packages
+## Known Patterns & Troubleshooting
 
-| Package | Version | Used for |
-| ------- | ------- | ---------- |
-| `Microsoft.Agents.AI` | 1.1.0 | `AIAgent`, `AgentSession`, `AIFunctionFactory` |
-| `Microsoft.Agents.AI.OpenAI` | 1.1.0 | `AsAIAgent()` extension on `ChatClient` |
-| `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
-| `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
-| `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
-| `Microsoft.Extensions.Configuration.Json` | 10.0.0 | `appsettings.json` loading |
+### ChatResponseFormat Disambiguation
 
-> **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
+When a project imports both `OpenAI.Chat` and `Microsoft.Extensions.AI`, the `ChatResponseFormat` type becomes ambiguous. **Always use the fully qualified type** to avoid compilation errors:
+
+```csharp
+// ❌ Ambiguous — will not compile
+var response = await agent.RunAsync<MyOutputType>(prompt, 
+    new ChatClientAgentOptions 
+    { 
+        ResponseFormat = ChatResponseFormat.ForJsonSchema<MyOutputType>()
+    });
+
+// ✅ Correct — use full namespace
+var response = await agent.RunAsync<MyOutputType>(prompt,
+    new ChatClientAgentOptions
+    {
+        ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<MyOutputType>()
+    });
+```
+
+### Reasoning Effort Configuration
+
+In `Microsoft.Agents.AI.OpenAI v1.1.0`, custom `ChatOptions` for reasoning effort must be passed via the `AsAIAgent(ChatClientAgentOptions)` overload. Named parameters like `options: ChatOptions(...)` are **not available**:
+
+```csharp
+// ❌ Will fail — no 'options:' parameter exists
+var agent = chatClient.AsAIAgent(
+    instructions: "...",
+    options: new ChatOptions { ... }
+);
+
+// ✅ Correct — use ChatClientAgentOptions
+var agent = chatClient.AsAIAgent(
+    instructions: "...",
+    new ChatClientAgentOptions
+    {
+        ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<T>(),
+        // other options here
+    }
+);
+```
+
+### Composing Multiple Tool Sets
+
+When registering tools from multiple sources (e.g., reflected methods from different classes), **create each tool sequence independently and concatenate**, rather than chaining `Select()` over existing `AIFunction` objects:
+
+```csharp
+// ❌ Will fail — type inference and delegate mismatch
+var tools = toolSet1
+    .Concat(AIFunctionFactory.Create(tool2Method))
+    .Select(t => t);
+
+// ✅ Correct — create each sequence separately
+var toolsFromClass1 = new[] { AIFunctionFactory.Create(method1), ... };
+var toolsFromClass2 = new[] { AIFunctionFactory.Create(method2), ... };
+var allTools = toolsFromClass1.Concat(toolsFromClass2).ToArray();
+
+var agent = chatClient.AsAIAgent(
+    instructions: "...",
+    tools: allTools
+);
+```
 
 ---
 
