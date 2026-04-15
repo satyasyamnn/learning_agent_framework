@@ -15,6 +15,7 @@ A progressive showcase of the **Microsoft Agent Framework** (`Microsoft.Agents.A
 | 0c | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed (educational) |
 | 0d | `03-proper-session-multiturn` | 💾 Session-Based Multi-Turn | Context persistence, serialization |
 | 0e | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
+| 0f | `05-reasoning-effort-customs` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
 
 ---
 

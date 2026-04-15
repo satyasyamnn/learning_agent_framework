@@ -33,8 +33,11 @@
   <Folder Name="/samples/00-fundamentals/03-proper-session-multiturn/">
     <Project Path="samples/00-fundamentals/03-proper-session-multiturn/03-proper-session-multiturn/03-proper-session-multiturn.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/04-structured-output-customs/">
-    <Project Path="samples/00-fundamentals/04-structured-output-customs/04-structured-output-customs/04-structured-output-customs.csproj" />
+  <Folder Name="/samples/00-fundamentals/04-structured-output/">
+    <Project Path="samples/00-fundamentals/04-structured-output/04-structured-output/04-structured-output-customs.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/05-reasoning-effort/">
+    <Project Path="samples/00-fundamentals/05-reasoning-effort/05-reasoning-effort-customs/05-reasoning-effort-customs.csproj" />
   </Folder>
   <Folder Name="/shared/" />
   <Folder Name="/shared/MockDataServices/">
