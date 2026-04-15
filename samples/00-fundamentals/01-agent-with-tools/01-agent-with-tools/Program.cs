@@ -27,9 +27,9 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"] 
+var endpointUrl = config["AzureOpenAI:Endpoint"]
     ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"] 
+var deploymentName = config["AzureOpenAI:DeploymentName"]
     ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
 var apiKey = config["AzureOpenAI:ApiKey"];
 var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
@@ -86,12 +86,12 @@ AIAgent agent = chatClient.AsAIAgent(
     ]);
 
 Console.WriteLine(">>> Example 1: Query port risk status (agent will use GetPortRiskStatus tool)\n");
-string response = (await agent.RunAsync("What is the current disruption risk status at Rotterdam port?")).Text;
-Console.WriteLine($"Response: {response}\n");
+AgentResponse response = await agent.RunAsync("What is the current disruption risk status at Rotterdam port?");
+Console.WriteLine($"Response: {response.Text}\n");
 
 Console.WriteLine(">>> Example 2: Estimate customs duty (agent will use EstimateCustomsDuty tool)\n");
-response = (await agent.RunAsync("Estimate duty for a shipment valued at 120000 USD with a duty rate of 7.5%. Include a short operational note.")).Text;
-Console.WriteLine($"Response: {response}\n");
+response = await agent.RunAsync("Estimate duty for a shipment valued at 120000 USD with a duty rate of 7.5%. Include a short operational note.");
+Console.WriteLine($"Response: {response.Text}\n");
 
 Console.WriteLine(">>> Example 3: Streaming with tool usage\n");
 await foreach (var update in agent.RunStreamingAsync(
@@ -102,5 +102,5 @@ await foreach (var update in agent.RunStreamingAsync(
 Console.WriteLine("\n");
 
 Console.WriteLine(">>> Example 4: Tool usage across multiple queries\n");
-response = (await agent.RunAsync("Which port has lower disruption risk: Singapore or Los Angeles? Also estimate duty on 50000 USD at 4%.")).Text;
-Console.WriteLine($"Response: {response}\n");
+response = await agent.RunAsync("Which port has lower disruption risk: Singapore or Los Angeles? Also estimate duty on 50000 USD at 4%.");
+Console.WriteLine($"Response: {response.Text}\n");

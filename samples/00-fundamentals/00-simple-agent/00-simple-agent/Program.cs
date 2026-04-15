@@ -12,9 +12,9 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"] 
+var endpointUrl = config["AzureOpenAI:Endpoint"]
     ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"] 
+var deploymentName = config["AzureOpenAI:DeploymentName"]
     ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
 var apiKey = config["AzureOpenAI:ApiKey"];
 var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
@@ -34,8 +34,8 @@ AIAgent agent = chatClient.AsAIAgent(
     name: "BasicAgent");
 
 Console.WriteLine(">>> Example 1: Single turn - non-streaming\n");
-string response = (await agent.RunAsync("What are three common causes of delays at an international customs checkpoint?")).Text;
-Console.WriteLine($"Response: {response}\n");
+AgentResponse response = await agent.RunAsync("What are three common causes of delays at an international customs checkpoint?");
+Console.WriteLine($"Response: {response.Text}\n");
 
 Console.WriteLine(">>> Example 2: Single turn - streaming\n");
 await foreach (var update in agent.RunStreamingAsync("List three best practices for reducing last-mile delivery disruptions."))
@@ -45,6 +45,6 @@ await foreach (var update in agent.RunStreamingAsync("List three best practices 
 Console.WriteLine("\n");
 
 Console.WriteLine(">>> Example 3: Another single-turn question\n");
-string mathResponse = (await agent.RunAsync("A warehouse ships 25 cartons per pallet across 4 pallets. How many cartons are being shipped in total?")).Text;
-Console.WriteLine($"Response: {mathResponse}\n");
+AgentResponse mathResponse = await agent.RunAsync("A warehouse ships 25 cartons per pallet across 4 pallets. How many cartons are being shipped in total?");
+Console.WriteLine($"Response: {mathResponse.Text}\n");
 

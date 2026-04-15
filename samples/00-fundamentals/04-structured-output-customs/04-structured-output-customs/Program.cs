@@ -96,13 +96,12 @@ static async Task UseStructuredOutputWithRunStreamingAsync(ChatClient chatClient
         }
     });
 
+    Console.WriteLine("Streaming JSON Output:");
     IAsyncEnumerable<AgentResponseUpdate> updates = agent.RunStreamingAsync(
         "Assess shipment CSH-5144 to Canada with HS code 847330, declared value 64000 USD, and duty rate 3.5%. " +
         "Include risk level, required documents, and recommended next action.");
 
     AgentResponse response = await updates.ToAgentResponseAsync();
-
-    Console.WriteLine("Streaming JSON Output:");
     Console.WriteLine(response.Text);
 
     CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(response.Text, jsonOptions)
