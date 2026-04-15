@@ -28,7 +28,8 @@ A knowledge sharing collection for building Agents using **Microsoft Agent Frame
 | `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
 | `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
 | `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
-| `Microsoft.Extensions.Configuration.Json` | 10.0.0 | `appsettings.json` loading |
+| `Microsoft.Extensions.AI` | 10.4.0 | Shared chat abstractions and chat message types |
+| `Microsoft.Extensions.Configuration.Json` | 9.0.4 | `appsettings.json` loading |
 
 > **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
 
@@ -242,6 +243,78 @@ Console.WriteLine($"High reasoning risk score: {highResponse.Result.RiskScore}")
 
 ---
 
+## RAG (01) — Retrieval-Augmented Generation
+
+**RAG updates introduced in this repository**
+
+| Sample | Project | Concept | Key Feature |
+| ------- | ------- | --------- | ------------ |
+| 01 | `00-customs-rag-basic` | 📚 Tool-Based RAG | Local knowledge retrieval with grounding citations (`[KB-xxx]`) |
+| 02 | `01-customs-rag-embeddings` | 🧭 Embedding-Based RAG | Semantic vector retrieval using in-memory vector store |
+
+### What Changed
+
+- Added a **basic customs RAG** sample using a retrieval tool (`RetrieveCustomsKnowledge`) and token-overlap ranking.
+- Added an **embedding-based customs RAG** sample using Azure OpenAI embeddings and in-memory vector search.
+- Added support for configurable embedding settings via `AzureOpenAI:EmbeddingEndpoint`, `AzureOpenAI:EmbeddingDeploymentName`, and `AzureOpenAI:EmbeddingApiKey`.
+
+### RAG-Specific Packages
+
+| Package | Version | Used for |
+| ------- | ------- | ---------- |
+| `Microsoft.Extensions.AI.OpenAI` | 10.4.0 | OpenAI/Azure OpenAI extension helpers used by RAG samples |
+| `Microsoft.Extensions.VectorData.Abstractions` | 10.1.0 | Vector data contracts used in embedding-based RAG |
+| `Microsoft.SemanticKernel.Connectors.InMemory` | 1.74.0-preview | In-memory vector store for semantic retrieval |
+
+### Sample 01: Customs RAG Basic (📚 Agent + Retrieval Tool)
+
+**Pattern:** Basic Retrieval-Augmented Generation using a local customs knowledge base and a retrieval tool
+
+| Detail | Value |
+| ------- | ------- |
+| Project | `00-customs-rag-basic` |
+| Agent | `CustomsRagAgent` |
+| Key API | `AIFunctionFactory.Create(RetrieveCustomsKnowledge)` |
+| Behavior | Retrieves top customs snippets and answers with grounding citations like `[KB-001]` |
+
+This sample demonstrates a lightweight RAG pattern in Microsoft Agent Framework without external vector infrastructure. It uses a local knowledge corpus, token-overlap ranking, and a tool call to provide grounded answers for customs questions on documents, HS code classification, duty basics, sanctions, and dual-use checks.
+
+**Solution approach:** The implementation keeps retrieval intentionally simple. It builds a small in-memory customs knowledge base, ranks candidate snippets with token overlap, and exposes retrieval through a tool the agent can call before answering.
+
+The flow is: user question -> retrieval tool selects top snippets -> agent answers using only grounded context and returns citation-style references such as `[KB-001]`. This makes the example easy to understand without introducing embeddings or external search infrastructure.
+
+### Sample 02: Customs RAG with Embeddings (🧭 Semantic Vector Retrieval)
+
+**Pattern:** Embedding-based Retrieval-Augmented Generation using semantic vector search
+
+| Detail | Value |
+| ------- | ------- |
+| Project | `01-customs-rag-embeddings` |
+| Agent | `CustomsEmbeddingRagAgent` |
+| Key API | `GetEmbeddingClient(...).AsIEmbeddingGenerator()`, `InMemoryVectorStore`, `VectorSearchAsync(...)` |
+| Behavior | Retrieves semantically similar customs snippets using embeddings before answering |
+
+This sample demonstrates semantic RAG with vector retrieval. It builds embeddings for customs knowledge records, stores them in an in-memory vector index, and retrieves top semantic matches for grounded responses.
+
+**Solution approach:** This version extends the same customs domain with semantic retrieval. It generates embeddings for each knowledge record, stores them in an in-memory vector store, and performs similarity search so retrieval works even when the user wording does not exactly match the stored text.
+
+The flow is: build embeddings -> upsert records into the vector index -> run vector search for the user query -> pass the matched snippets into the agent for grounded answering. This sample shows the shape of a semantic RAG pipeline while still keeping the infrastructure local and inspectable.
+
+```csharp
+var embeddingGenerator = embeddingClient
+    .GetEmbeddingClient(embeddingDeployment)
+    .AsIEmbeddingGenerator();
+
+var vectorStore = new InMemoryVectorStore(new InMemoryVectorStoreOptions
+{
+    EmbeddingGenerator = embeddingGenerator
+});
+
+var collection = vectorStore.GetCollection<Guid, CustomsVectorStoreRecord>("customs-knowledge");
+```
+
+---
+
 ## Architecture Overview
 
 If you are viewing this in VS Code and the diagram is blank or not rendered, install the `Markdown Preview Mermaid Support` extension (`bierner.markdown-mermaid`) and use `Markdown: Open Preview to the Side`.
@@ -326,14 +399,14 @@ learning_agent_framework/
 │               └── MockTariffService.cs            — HS codes, duty rates, sanctioned countries
 │
 └── samples/
-    ├── 01-supply-chain/
+    ├── 02-supply-chain/
     │   ├── SupplyChain.OrderTracking/
     │   ├── SupplyChain.DisruptionAlert/
     │   └── SupplyChain.SupplierOrchestration/
     │       ├── Program.cs    — workflow wiring
     │       └── Executors.cs  — 3 executor classes
     │
-    └── 02-customs/
+    └── 03-customs/
         ├── Customs.DocumentReview/
         ├── Customs.ComplianceCheck/
         │   ├── Program.cs    — workflow + conditional edges
@@ -731,23 +804,29 @@ dotnet build SupplyChainCustoms.AgentFramework.slnx
 ### Run a Sample
 
 ```bash
+# Sample 7 — basic customs RAG
+dotnet run --project samples/01-RAG/00-customs-rag-basic/00-customs-rag-basic
+
+# Sample 8 — embeddings-based customs RAG
+dotnet run --project samples/01-RAG/01-customs-rag-embeddings/01-customs-rag-embeddings
+
 # Sample 1 — single agent, streaming
-dotnet run --project samples/01-supply-chain/SupplyChain.OrderTracking/SupplyChain.OrderTracking
+dotnet run --project samples/02-supply-chain/SupplyChain.OrderTracking/SupplyChain.OrderTracking
 
 # Sample 2 — multi-turn session
-dotnet run --project samples/01-supply-chain/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert
+dotnet run --project samples/02-supply-chain/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert
 
 # Sample 3 — workflow (will prompt for human approval)
-dotnet run --project samples/01-supply-chain/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration
+dotnet run --project samples/02-supply-chain/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration
 
 # Sample 4 — customs document review
-dotnet run --project samples/02-customs/Customs.DocumentReview/Customs.DocumentReview
+dotnet run --project samples/03-customs/Customs.DocumentReview/Customs.DocumentReview
 
 # Sample 5 — compliance check with conditional routing (may prompt for officer approval)
-dotnet run --project samples/02-customs/Customs.ComplianceCheck/Customs.ComplianceCheck
+dotnet run --project samples/03-customs/Customs.ComplianceCheck/Customs.ComplianceCheck
 
 # Sample 6 — full clearance orchestration pipeline
-dotnet run --project samples/02-customs/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration
+dotnet run --project samples/03-customs/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration
 ```
 
 ---

@@ -1,24 +1,24 @@
 <Solution>
   <Folder Name="/samples/" />
-  <Folder Name="/samples/01-supply-chain/" />
-  <Folder Name="/samples/01-supply-chain/SupplyChain.DisruptionAlert/">
-    <Project Path="samples/01-supply-chain/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert.csproj" />
+  <Folder Name="/samples/02-supply-chain/" />
+  <Folder Name="/samples/02-supply-chain/SupplyChain.DisruptionAlert/">
+    <Project Path="samples/02-supply-chain/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert/SupplyChain.DisruptionAlert.csproj" />
   </Folder>
-  <Folder Name="/samples/01-supply-chain/SupplyChain.OrderTracking/">
-    <Project Path="samples/01-supply-chain/SupplyChain.OrderTracking/SupplyChain.OrderTracking/SupplyChain.OrderTracking.csproj" />
+  <Folder Name="/samples/02-supply-chain/SupplyChain.OrderTracking/">
+    <Project Path="samples/02-supply-chain/SupplyChain.OrderTracking/SupplyChain.OrderTracking/SupplyChain.OrderTracking.csproj" />
   </Folder>
-  <Folder Name="/samples/01-supply-chain/SupplyChain.SupplierOrchestration/">
-    <Project Path="samples/01-supply-chain/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration.csproj" />
+  <Folder Name="/samples/02-supply-chain/SupplyChain.SupplierOrchestration/">
+    <Project Path="samples/02-supply-chain/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration/SupplyChain.SupplierOrchestration.csproj" />
   </Folder>
-  <Folder Name="/samples/02-customs/" />
-  <Folder Name="/samples/02-customs/Customs.ClearanceOrchestration/">
-    <Project Path="samples/02-customs/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration.csproj" />
+  <Folder Name="/samples/03-customs/" />
+  <Folder Name="/samples/03-customs/Customs.ClearanceOrchestration/">
+    <Project Path="samples/03-customs/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration/Customs.ClearanceOrchestration.csproj" />
   </Folder>
-  <Folder Name="/samples/02-customs/Customs.ComplianceCheck/">
-    <Project Path="samples/02-customs/Customs.ComplianceCheck/Customs.ComplianceCheck/Customs.ComplianceCheck.csproj" />
+  <Folder Name="/samples/03-customs/Customs.ComplianceCheck/">
+    <Project Path="samples/03-customs/Customs.ComplianceCheck/Customs.ComplianceCheck/Customs.ComplianceCheck.csproj" />
   </Folder>
-  <Folder Name="/samples/02-customs/Customs.DocumentReview/">
-    <Project Path="samples/02-customs/Customs.DocumentReview/Customs.DocumentReview/Customs.DocumentReview.csproj" />
+  <Folder Name="/samples/03-customs/Customs.DocumentReview/">
+    <Project Path="samples/03-customs/Customs.DocumentReview/Customs.DocumentReview/Customs.DocumentReview.csproj" />
   </Folder>
   <Folder Name="/samples/00-fundamentals/" />
   <Folder Name="/samples/00-fundamentals/00-simple-agent/">
@@ -38,6 +38,13 @@
   </Folder>
   <Folder Name="/samples/00-fundamentals/05-reasoning-effort/">
     <Project Path="samples/00-fundamentals/05-reasoning-effort/05-reasoning-effort-customs/05-reasoning-effort-customs.csproj" />
+  </Folder>
+  <Folder Name="/samples/01-RAG/" />
+  <Folder Name="/samples/01-RAG/00-customs-rag-basic/">
+    <Project Path="samples/01-RAG/00-customs-rag-basic/00-customs-rag-basic/00-customs-rag-basic.csproj" />
+  </Folder>
+  <Folder Name="/samples/01-RAG/01-customs-rag-embeddings/">
+    <Project Path="samples/01-RAG/01-customs-rag-embeddings/01-customs-rag-embeddings/01-customs-rag-embeddings.csproj" />
   </Folder>
   <Folder Name="/shared/" />
   <Folder Name="/shared/MockDataServices/">
