@@ -23,5 +23,11 @@
 
     <!-- Semantic Kernel connectors -->
     <PackageVersion Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.74.0-preview" />
+
+    <!-- PDF processing -->
+    <PackageVersion Include="itext7" Version="7.2.5" />
+
+    <!-- Roslyn scripting for C# .csx execution in skills sample -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
   </ItemGroup>
 </Project>

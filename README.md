@@ -16,6 +16,8 @@ A knowledge sharing collection for building Agents using **Microsoft Agent Frame
 | 04 | `03-proper-session-multiturn` | 💾 Token Management in Sessions | Context persistence, token tracking per turn |
 | 05 | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
 | 06 | `05-reasoning-effort-customs` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
+| 07 | `06-agent-framework-skills-customs` | 🧰📁 Combined Agent Skills | Programmatic (`AgentInlineSkill`) + file-based (`SKILL.md`) skills in one customs sample |
+| 08 | `07-csharp-file-script-runner-customs` | 🧾 C# File Script Runner | File-based skills with `.csx` scripts executed by a C# runner (no Python runtime) |
 
 ---
 
