@@ -11,7 +11,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var chatClient = FundamentalsAgentFactory.CreateChatClient(config);
+var chatClient = AiAgentFactory.CreateChatClient(config);
 
 var skillsPath = Path.Combine(AppContext.BaseDirectory, "skills");
 var dutySkillRoot = Path.Combine(skillsPath, "csharp-duty-and-lane");

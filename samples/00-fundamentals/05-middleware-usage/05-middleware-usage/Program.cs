@@ -14,7 +14,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var chatClient = FundamentalsAgentFactory.CreateChatClient(config, fallbackDeploymentName: "gpt-4o-mini");
+var chatClient = AiAgentFactory.CreateChatClient(config, fallbackDeploymentName: "gpt-4o-mini");
 
 // Customs-domain tools
 [Description("Check compliance of a shipment based on origin and destination.")]

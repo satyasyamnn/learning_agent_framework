@@ -9,7 +9,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
 
 Console.WriteLine("=== Proper Multi-Turn with AgenticSession (Supply Chain Context) ===\n");
 
-AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+AIAgent agent = AiAgentFactory.CreateAgent(
     config,
     instructions: "You are a helpful supply chain and customs assistant. Remember important operational details the user tells you and use them in future responses.",
     name: "ContextAwareAgent");

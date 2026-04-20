@@ -9,7 +9,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var chatClient = FundamentalsAgentFactory.CreateChatClient(config);
+var chatClient = AiAgentFactory.CreateChatClient(config);
 
 var clearancePacketSkill = new AgentInlineSkill(
     name: "customs-clearance-packet",

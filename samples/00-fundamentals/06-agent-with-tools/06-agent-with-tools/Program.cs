@@ -30,7 +30,7 @@ var detentionTool = AIFunctionFactory.Create(RestrictedOfficerActions.FlagShipme
 tools.Add(new ApprovalRequiredAIFunction(detentionTool));
 #pragma warning restore MEAI001
 
-AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+AIAgent agent = AiAgentFactory.CreateAgent(
         config,
         instructions: """
             You are a customs operations assistant with access to shipment data,

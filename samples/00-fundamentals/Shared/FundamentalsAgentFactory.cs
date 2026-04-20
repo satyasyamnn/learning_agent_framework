@@ -2,7 +2,6 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,7 @@ using OpenAI.Chat;
 
 namespace Fundamentals.Shared;
 
-internal static class FundamentalsAgentFactory
+internal static class AiAgentFactory
 {
     public static AIAgent CreateAgent(
         IConfiguration config,

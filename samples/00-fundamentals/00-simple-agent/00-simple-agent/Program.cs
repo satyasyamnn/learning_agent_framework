@@ -9,7 +9,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
 
 Console.WriteLine("=== Simple Agent Example ===\n");
 
-AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+AIAgent agent = AiAgentFactory.CreateAgent(
     config,
     instructions: "You are a helpful supply chain and customs assistant that provides concise and accurate information.",
     name: "BasicAgent");
@@ -18,6 +18,10 @@ Console.WriteLine(">>> Single turn - non-streaming\n");
 AgentResponse response = await agent.RunAsync("What are three common causes of delays at an international customs checkpoint?");
 Console.WriteLine($"Response: {response.Text}\n");
 
+Console.WriteLine(">>> Single turn - another question with calculation involved \n");
+AgentResponse mathResponse = await agent.RunAsync("A warehouse ships 25 cartons per pallet across 4 pallets. How many cartons are being shipped in total?");
+Console.WriteLine($"Response: {mathResponse.Text}\n");
+
 Console.WriteLine(">>> Single turn - streaming\n");
 await foreach (var update in agent.RunStreamingAsync("List three best practices for reducing last-mile delivery disruptions."))
 {
@@ -25,7 +29,4 @@ await foreach (var update in agent.RunStreamingAsync("List three best practices 
 }
 Console.WriteLine("\n");
 
-Console.WriteLine(">>> Single turn - another question\n");
-AgentResponse mathResponse = await agent.RunAsync("A warehouse ships 25 cartons per pallet across 4 pallets. How many cartons are being shipped in total?");
-Console.WriteLine($"Response: {mathResponse.Text}\n");
 

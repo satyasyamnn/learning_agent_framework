@@ -12,7 +12,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
 
 Console.WriteLine("=== Structured Output for Customs Clearance ===\n");
 
-ChatClient chatClient = FundamentalsAgentFactory.CreateChatClient(config);
+ChatClient chatClient = AiAgentFactory.CreateChatClient(config);
 JsonSerializerOptions jsonOptions = new()
 {
     PropertyNameCaseInsensitive = true

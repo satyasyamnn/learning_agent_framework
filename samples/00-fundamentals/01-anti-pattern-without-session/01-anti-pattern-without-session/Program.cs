@@ -9,7 +9,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
 
 Console.WriteLine("=== Anti-Pattern: Multi-Turn without Session ===\n");
 
-AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+AIAgent agent = AiAgentFactory.CreateAgent(
     config,
     instructions: "You are a helpful supply chain assistant. Remember important shipment details the user tells you.",
     name: "ContextAgent");

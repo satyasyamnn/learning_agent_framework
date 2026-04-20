@@ -15,15 +15,15 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = FundamentalsAgentFactory.GetRequired(config, "AzureOpenAI:Endpoint");
-var deploymentName = FundamentalsAgentFactory.GetRequired(config, "AzureOpenAI:DeploymentName");
+var endpointUrl = AiAgentFactory.GetRequired(config, "AzureOpenAI:Endpoint");
+var deploymentName = AiAgentFactory.GetRequired(config, "AzureOpenAI:DeploymentName");
 var responsesModel = config["AzureOpenAI:ResponsesModel"] ?? deploymentName;
 var isProjectEndpoint = endpointUrl.Contains("/api/projects/", StringComparison.OrdinalIgnoreCase);
 
 var customsQuestion =
     "For customs shipment CSH-9021 entering Germany from Singapore, identify likely inspection focus areas and recommend a fast-track action plan. Return in max 35 words.";
 
-var azureOpenAIClient = FundamentalsAgentFactory.CreateAzureOpenAIClient(config);
+var azureOpenAIClient = AiAgentFactory.CreateAzureOpenAIClient(config);
 
 WriteHeader("Customs Reasoning Effort Sample (Microsoft Agent Framework)");
 
