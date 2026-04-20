@@ -34,16 +34,19 @@
     <Project Path="samples/00-fundamentals/03-proper-session-multiturn/03-proper-session-multiturn/03-proper-session-multiturn.csproj" />
   </Folder>
   <Folder Name="/samples/00-fundamentals/04-structured-output/">
-    <Project Path="samples/00-fundamentals/04-structured-output/04-structured-output/04-structured-output-customs.csproj" />
+    <Project Path="samples/00-fundamentals/04-structured-output/04-structured-output/04-structured-output.csproj" />
   </Folder>
   <Folder Name="/samples/00-fundamentals/05-reasoning-effort/">
     <Project Path="samples/00-fundamentals/05-reasoning-effort/05-reasoning-effort/05-reasoning-effort.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/06-agent-framework-skills/">
-    <Project Path="samples/00-fundamentals/06-agent-framework-skills/06-agent-framework-skills/06-agent-framework-skills.csproj" />
+  <Folder Name="/samples/00-fundamentals/06-middleware-usage/">
+    <Project Path="samples/00-fundamentals/06-middleware-usage/06-middleware-usage/06-middleware-usage.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/07-csharp-file-script-runner/">
-    <Project Path="samples/00-fundamentals/07-csharp-file-script-runner/07-csharp-file-script-runner/07-csharp-file-script-runner.csproj" />
+  <Folder Name="/samples/00-fundamentals/07-agent-framework-skills/">
+    <Project Path="samples/00-fundamentals/07-agent-framework-skills/07-agent-framework-skills/07-agent-framework-skills.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/08-csharp-file-script-runner/">
+    <Project Path="samples/00-fundamentals/08-csharp-file-script-runner/08-csharp-file-script-runner/08-csharp-file-script-runner.csproj" />
   </Folder>
   <Folder Name="/samples/01-RAG/" />
   <Folder Name="/samples/01-RAG/00-customs-rag-basic/">

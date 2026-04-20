@@ -12,10 +12,11 @@ Knowledge sharing examples for the **Microsoft Agent Framework** (`Microsoft.Age
 | 02 | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
 | 03 | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed |
 | 04 | `03-proper-session-multiturn` | 💾 Token Management in Sessions | Context persistence, token tracking per turn |
-| 05 | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
+| 05 | `04-structured-output` | 📋 Structured Output | JSON schema output with customs assessment |
 | 06 | `05-reasoning-effort` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
-| 07 | `06-agent-framework-skills` | 🧰📁 Combined Agent Skills | Programmatic + file-based Agent Skills in one customs workflow |
-| 08 | `07-csharp-file-script-runner` | 🧾 C# File Script Runner | File-based `SKILL.md` scripts executed via C# `.csx` runner (no Python dependency) |
+| 07 | `06-middleware-usage` | 🛡️ Middleware | Agent run, function calling, and chat client middleware in customs context |
+| 08 | `07-agent-framework-skills` | 🧰📁 Combined Agent Skills | Programmatic + file-based Agent Skills in one customs workflow |
+| 09 | `08-csharp-file-script-runner` | 🧾 C# File Script Runner | File-based `SKILL.md` scripts executed via C# `.csx` runner (no Python dependency) |
 
 ---
 
