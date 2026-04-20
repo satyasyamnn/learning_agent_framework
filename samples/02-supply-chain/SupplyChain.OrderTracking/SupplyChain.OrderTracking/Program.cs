@@ -23,9 +23,12 @@ var config = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
-var endpoint       = config["AzureOpenAI:Endpoint"]!;
+var endpointUrl    = config["AzureOpenAI:Endpoint"]!;
 var deploymentName = config["AzureOpenAI:DeploymentName"]!;
 var apiKey         = config["AzureOpenAI:ApiKey"]!;
+
+// Extract just the authority part from the project-scoped endpoint
+var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(System.UriPartial.Authority));
 
 // ── Services ──────────────────────────────────────────────────────────────────
 var shipmentService = new MockShipmentService();
@@ -81,7 +84,7 @@ string FlagDelayedShipment(
 
 // ── Agent Setup ───────────────────────────────────────────────────────────────
 // Use .AsAIAgent() extension from Microsoft.Agents.AI.OpenAI
-var agent = new AzureOpenAIClient(new Uri(endpoint), new System.ClientModel.ApiKeyCredential(apiKey))
+var agent = new AzureOpenAIClient(endpoint, new System.ClientModel.ApiKeyCredential(apiKey))
     .GetChatClient(deploymentName)
     .AsAIAgent(
         instructions: """

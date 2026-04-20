@@ -29,11 +29,11 @@
     <Project Path="samples/00-fundamentals/08-csharp-file-script-runner/08-csharp-file-script-runner/08-csharp-file-script-runner.csproj" />
   </Folder>
   <Folder Name="/samples/01-RAG/" />
-  <Folder Name="/samples/01-RAG/00-customs-rag-basic/">
-    <Project Path="samples/01-RAG/00-customs-rag-basic/00-customs-rag-basic/00-customs-rag-basic.csproj" />
-  </Folder>
   <Folder Name="/samples/01-RAG/01-customs-rag-embeddings/">
     <Project Path="samples/01-RAG/01-customs-rag-embeddings/01-customs-rag-embeddings/01-customs-rag-embeddings.csproj" />
+  </Folder>
+  <Folder Name="/samples/01-RAG/02-customs-rag-sqlserver-2025/">
+    <Project Path="samples/01-RAG/02-customs-rag-sqlserver-2025/02-customs-rag-sqlserver-2025/02-customs-rag-sqlserver-2025.csproj" />
   </Folder>
   <Folder Name="/samples/02-supply-chain/" />
   <Folder Name="/samples/02-supply-chain/SupplyChain.DisruptionAlert/">

@@ -4,21 +4,21 @@
 
 ---
 
-## 📚 Learning Path Overview
+## 🧭 Fundamentals Snapshot
 
-All projects are in the `/samples/00-fundamentals/` folder. Start from **Project 1** and progress sequentially to build deep understanding.
+This section centralizes fundamentals-only context that used to live in the repository root README. All projects are in the `/samples/00-fundamentals/` folder. Start from **Project 1** and progress sequentially to build deep understanding.
 
-| # | Project | Concept |
-|---|---------|---------|
-| **1** | [00-simple-agent](#-project-1-simple-agent) | 🤖 Basic Agent Creation |
-| **2** | [01-anti-pattern-without-session](#-project-2-anti-pattern-without-session) | ⚠️ Session Anti-Pattern |
-| **3** | [02-proper-session-multiturn](#-project-3-proper-session-multiturn) | 💾 Multi-Turn Sessions |
-| **4** | [03-structured-output](#-project-4-structured-output) | 📋 Structured Output |
-| **5** | [04-reasoning-effort](#-project-5-reasoning-effort) | 🧠 Reasoning Controls |
-| **6** | [05-middleware-usage](#-project-6-middleware-usage) | 🛡️ Middleware & Monitoring |
-| **7** | [06-agent-with-tools](#-project-7-agent-with-tools) | 🔧 Agent + Tools |
-| **8** | [07-agent-framework-skills](#-project-8-agent-framework-skills) | 🧰 Skills (Inline) |
-| **9** | [08-csharp-file-script-runner](#-project-9-csharp-file-script-runner) | 🧾 Skills (File-Based) |
+| Sample | Project | Concept | Key Feature |
+| ------- | ------- | ------- | ------------ |
+| 01 | `00-simple-agent` | 🤖 Basic Agent Creation | Single-turn interactions, no tools |
+| 02 | `01-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Demonstrates stateless conversation pitfalls |
+| 03 | `02-proper-session-multiturn` | 💾 Multi-Turn Sessions | Session persistence and token tracking |
+| 04 | `03-structured-output` | 📋 Structured Output | Typed JSON schema-driven responses |
+| 05 | `04-reasoning-effort` | 🧠 Reasoning Controls | Baseline/minimal/high effort trade-offs |
+| 06 | `05-middleware-usage` | 🛡️ Middleware & Monitoring | Request/response interception and logging |
+| 07 | `06-agent-with-tools` | 🔧 Agent + Tools | Function calling and tool registration |
+| 08 | `07-agent-framework-skills` | 🧰 Skills (Inline) | Programmatic `AgentInlineSkill` usage |
+| 09 | `08-csharp-file-script-runner` | 🧾 Skills (File-Based) | `SKILL.md` + `.csx` script execution |
 
 ---
 
@@ -29,26 +29,19 @@ All projects are in the `/samples/00-fundamentals/` folder. Start from **Project
 - Azure OpenAI resource (or use DefaultAzureCredential with managed identity)
 - Azure CLI (for authentication)
 
-### 2. Get Running in 2 Minutes
-```bash
-# Navigate to first project
-cd samples/00-fundamentals/00-simple-agent/00-simple-agent
+## NuGet Packages
 
-# Configure (if needed)
-cp ../../../shared/appsettings/appsettings.json .
+| Package | Version | Used for |
+| ------- | ------- | ---------- |
+| `Microsoft.Agents.AI` | 1.1.0 | `AIAgent`, `AgentSession`, `AIFunctionFactory` |
+| `Microsoft.Agents.AI.OpenAI` | 1.1.0 | `AsAIAgent()` extension on `ChatClient` |
+| `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
+| `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
+| `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
+| `Microsoft.Extensions.AI` | 10.4.0 | Shared chat abstractions and chat message types |
+| `Microsoft.Extensions.Configuration.Json` | 9.0.4 | `appsettings.json` loading |
 
-# Run
-dotnet run
-```
-
-### 3. Explore All Projects
-```bash
-# Try any project
-cd samples/00-fundamentals/{project-name}/{project-name}
-dotnet run
-```
-
----
+> **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
 
 ## 📖 Project Details
 

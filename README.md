@@ -4,260 +4,19 @@ A knowledge sharing collection for building Agents using **Microsoft Agent Frame
 
 ---
 
-## Fundamentals (00) — Agent Framework Basics
-
-**Fundamentals** sharing knowledge about the Microsoft Agent Framework. These examples demonstrate concepts from foundational patterns to advanced techniques, offering context before exploring the domain-specific samples.
-
-| Sample | Project | Concept | Key Feature |
-| ------- | ------- | --------- | ------------ |
-| 01 | `00-simple-agent` | 🤖 Basic Agent Creation | Single-turn interactions, no tools |
-| 02 | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
-| 03 | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed (educational) |
-| 04 | `03-proper-session-multiturn` | 💾 Token Management in Sessions | Context persistence, token tracking per turn |
-| 05 | `04-structured-output-customs` | 📋 Structured Output | JSON schema output with customs assessment |
-| 06 | `05-reasoning-effort-customs` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
-| 07 | `06-agent-framework-skills-customs` | 🧰📁 Combined Agent Skills | Programmatic (`AgentInlineSkill`) + file-based (`SKILL.md`) skills in one customs sample |
-| 08 | `07-csharp-file-script-runner-customs` | 🧾 C# File Script Runner | File-based skills with `.csx` scripts executed by a C# runner (no Python runtime) |
-
----
-
-## NuGet Packages
-
-| Package | Version | Used for |
-| ------- | ------- | ---------- |
-| `Microsoft.Agents.AI` | 1.1.0 | `AIAgent`, `AgentSession`, `AIFunctionFactory` |
-| `Microsoft.Agents.AI.OpenAI` | 1.1.0 | `AsAIAgent()` extension on `ChatClient` |
-| `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
-| `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
-| `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
-| `Microsoft.Extensions.AI` | 10.4.0 | Shared chat abstractions and chat message types |
-| `Microsoft.Extensions.Configuration.Json` | 9.0.4 | `appsettings.json` loading |
-
-> **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
-
----
-
-## Framework Concepts — Overview Map
-
-```mermaid
-flowchart LR
-    C1["🔧 Single Agent<br/>+ Tools"]
-    C2["💾 Multi-Turn<br/>Session Memory"]
-    C3["🔀 Multi-Agent<br/>Workflow"]
-    C4["🌍 Domain-Specific<br/>Customs"]
-    C5["🛂 Conditional<br/>Routing"]
-    C6["📦 End-to-End<br/>Pipeline"]
-
-    C1 --> C2 --> C3
-    C3 -.-> C4 --> C5 --> C6
-
-    style C1 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
-    style C2 fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#000
-    style C3 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px,color:#000
-    style C4 fill:#f8bbd0,stroke:#c2185b,stroke-width:2px,color:#000
-    style C5 fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000
-    style C6 fill:#b2dfdb,stroke:#00695c,stroke-width:2px,color:#000
-```
-
-
-
-### Fundamentals 01: Simple Agent (🤖 Basic Agent Creation)
-
-**Pattern:** Basic agent creation and single-turn interactions
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `00-simple-agent` |
-| Agent | `SimpleAgent` |
-| Key API | `AsAIAgent()`, `RunAsync()` |
-| Tools | None |
-
-The most basic agent setup — create an agent with instructions and have a single conversation turn. Demonstrates the minimal code needed to get an agent responding to queries.
-
-```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "You are a helpful assistant.", name: "SimpleAgent");
-
-var response = await agent.RunAsync("Hello, who are you?");
-Console.WriteLine(response.Text);
-```
-
----
-
-### Fundamentals 02: Agent with Tools (🔧 Agent + Tools)
-
-**Pattern:** Agent with function calling capabilities
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `01-agent-with-tools` |
-| Agent | `ToolAgent` |
-| Key API | `AIFunctionFactory.Create()`, `AsAIAgent(tools: ...)` |
-| Tools | `GetWeather`, `ConvertTemperature`, `GetPopulation` |
-
-Shows how to register tools with an agent, enabling function calling. The agent can call these tools to get real-time data or perform calculations before responding.
-
-```csharp
-var tools = new[]
-{
-    AIFunctionFactory.Create(GetWeather),
-    AIFunctionFactory.Create(ConvertTemperature),
-    AIFunctionFactory.Create(GetPopulation)
-};
-
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "ToolAgent", tools: tools);
-
-var response = await agent.RunAsync("What's the weather in Tokyo and its population?");
-Console.WriteLine(response.Text);
-```
-
----
-
-### Fundamentals 03: Anti-Pattern Without Session (⚠️ Session Anti-Pattern)
-
-**Pattern:** Demonstrates why sessions are needed and the consequences of stateless design
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `02-anti-pattern-without-session` |
-| Agent | `StatelessAgent` |
-| Key API | Multiple `RunAsync()` calls without session |
-| Tools | None |
-
-**Pattern demonstration** showing what happens when you try multi-turn conversations without session memory. Each call to `RunAsync()` is completely independent, so the agent has no memory of previous turns. This illustrates the importance of proper session management.
-
-```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "StatelessAgent");
-
-// Turn 1
-var response1 = await agent.RunAsync("My name is Alice");
-Console.WriteLine(response1.Text); // Agent acknowledges
-
-// Turn 2 — Agent has no memory of Turn 1!
-var response2 = await agent.RunAsync("What's my name?");
-Console.WriteLine(response2.Text); // Agent doesn't know!
-```
-
----
-
-### Fundamentals 04: Proper Session Multi-Turn (💾 Token Management in Sessions)
-
-**Pattern:** Correct multi-turn conversations with session persistence and token usage tracking
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `03-proper-session-multiturn` |
-| Agent | `SessionAgent` |
-| Key API | `CreateSessionAsync()`, `RunAsync(session)`, `SerializeSessionAsync()`, `TokenUsage` |
-| Tools | None |
-
-Demonstrates proper multi-turn conversations using `AgentSession` for context persistence with token usage tracking. The agent remembers information across turns, tracks cumulative token consumption (input/output/cache tokens), and can be serialized/deserialized for persistence. Each turn reports token metrics to understand API costs and quota management.
-
-```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "SessionAgent");
-
-var session = await agent.CreateSessionAsync();
-
-// Turn 1
-var response1 = await agent.RunAsync("My name is Alice", session);
-Console.WriteLine(response1.Text);
-Console.WriteLine($"Turn 1 — Input: {response1.InputTokenCount}, Output: {response1.OutputTokenCount}");
-
-// Turn 2 — Agent remembers and tracks tokens!
-var response2 = await agent.RunAsync("What's my name?", session);
-Console.WriteLine(response2.Text); // Agent correctly says "Alice"
-Console.WriteLine($"Turn 2 — Input: {response2.InputTokenCount}, Output: {response2.OutputTokenCount}");
-
-// Serialize session for persistence
-var json = await agent.SerializeSessionAsync(session);
-```
-
----
-
-### Fundamentals 05: Structured Output for Customs (📋 Structured Output)
-
-**Pattern:** Structured JSON output via response schema, typed responses, and streaming assembly
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `04-structured-output-customs` |
-| Agent | `CustomsStructuredOutputAgent` |
-| Key API | `ChatResponseFormat.ForJsonSchema<T>()`, `RunAsync<T>()`, `RunStreamingAsync()` |
-| Output Type | `CustomsClearanceAssessment` |
-
-Shows how to constrain the model output to a strongly typed customs clearance schema. The sample demonstrates three patterns: response-format JSON text, generic typed output, and streaming output reassembly plus deserialization.
-
-```csharp
-var response = await agent.RunAsync<CustomsClearanceAssessment>(
-    "Assess shipment CSH-3017 to Germany with HS code 854231 and duty rate 4.2%.");
-
-Console.WriteLine(response.Result.RiskLevel);
-Console.WriteLine(response.Result.EstimatedDutyUsd);
-```
-
----
-
-### Fundamentals 06: Reasoning Effort Controls (🧠 Reasoning Effort Controls)
-
-**Pattern:** Reasoning effort configuration to optimize cost, latency, and quality trade-offs
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `05-reasoning-effort-customs` |
-| Agent | `ReasoningEffortAgent` |
-| Key API | `ChatClientAgentOptions`, `MaxCompletionTokens`, Reasoning effort levels |
-| Modes | `Baseline`, `Minimal`, `High` |
-
-Demonstrates how to switch reasoning effort levels (when using reasoning models) to balance complexity, cost, and latency. Lower effort uses faster heuristics; higher effort uses extended thinking for complex problems. This sample shows three configurations on the same customs assessment task, comparing token usage and reasoning depth.
-
-```csharp
-// Baseline reasoning (default, balanced)
-var baselineOptions = new ChatClientAgentOptions { };
-var baselineAgent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions { });
-var baselineResponse = await baselineAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"Baseline - Tokens: {baselineResponse.OutputTokenCount}");
-
-// Minimal reasoning (faster, lower cost)
-var minimalOptions = new ChatClientAgentOptions 
-{ 
-    MaxCompletionTokens = 1000 
-};
-var minimalAgent = chatClient.AsAIAgent(instructions: "...", minimalOptions);
-var minimalResponse = await minimalAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"Minimal - Tokens: {minimalResponse.OutputTokenCount}");
-
-// High reasoning (extended thinking, higher accuracy for complex decisions)
-var highOptions = new ChatClientAgentOptions 
-{ 
-    MaxCompletionTokens = 16000 
-};
-var highAgent = chatClient.AsAIAgent(instructions: "...", highOptions);
-var highResponse = await highAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"High - Tokens: {highResponse.OutputTokenCount}");
-
-// Compare results and costs
-Console.WriteLine($"Baseline risk score: {baselineResponse.Result.RiskScore}");
-Console.WriteLine($"High reasoning risk score: {highResponse.Result.RiskScore}");
-```
-
----
-
 ## RAG (01) — Retrieval-Augmented Generation
 
 **RAG updates introduced in this repository**
 
 | Sample | Project | Concept | Key Feature |
 | ------- | ------- | --------- | ------------ |
-| 01 | `00-customs-rag-basic` | 📚 Tool-Based RAG | Local knowledge retrieval with grounding citations (`[KB-xxx]`) |
-| 02 | `01-customs-rag-embeddings` | 🧭 Embedding-Based RAG | Semantic vector retrieval using in-memory vector store |
+| 01 | `01-customs-rag-embeddings` | 🧭 Embedding-Based RAG | Semantic vector retrieval using in-memory vector store |
+| 02 | `02-customs-rag-sqlserver-2025` | 🗄️ SQL Vector RAG | Semantic vector retrieval using SQL Server 2025 |
 
 ### What Changed
 
-- Added a **basic customs RAG** sample using a retrieval tool (`RetrieveCustomsKnowledge`) and token-overlap ranking.
 - Added an **embedding-based customs RAG** sample using Azure OpenAI embeddings and in-memory vector search.
+- Added a **SQL Server 2025 RAG** sample that stores embeddings in a SQL `vector` column and retrieves matches with `VECTOR_DISTANCE(...)`.
 - Added support for configurable embedding settings via `AzureOpenAI:EmbeddingEndpoint`, `AzureOpenAI:EmbeddingDeploymentName`, and `AzureOpenAI:EmbeddingApiKey`.
 
 ### RAG-Specific Packages
@@ -267,25 +26,9 @@ Console.WriteLine($"High reasoning risk score: {highResponse.Result.RiskScore}")
 | `Microsoft.Extensions.AI.OpenAI` | 10.4.0 | OpenAI/Azure OpenAI extension helpers used by RAG samples |
 | `Microsoft.Extensions.VectorData.Abstractions` | 10.1.0 | Vector data contracts used in embedding-based RAG |
 | `Microsoft.SemanticKernel.Connectors.InMemory` | 1.74.0-preview | In-memory vector store for semantic retrieval |
+| `Microsoft.Data.SqlClient` | 6.1.1 | SQL Server 2025 vector storage and retrieval |
 
-### Sample 01: Customs RAG Basic (📚 Agent + Retrieval Tool)
-
-**Pattern:** Basic Retrieval-Augmented Generation using a local customs knowledge base and a retrieval tool
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `00-customs-rag-basic` |
-| Agent | `CustomsRagAgent` |
-| Key API | `AIFunctionFactory.Create(RetrieveCustomsKnowledge)` |
-| Behavior | Retrieves top customs snippets and answers with grounding citations like `[KB-001]` |
-
-This sample demonstrates a lightweight RAG pattern in Microsoft Agent Framework without external vector infrastructure. It uses a local knowledge corpus, token-overlap ranking, and a tool call to provide grounded answers for customs questions on documents, HS code classification, duty basics, sanctions, and dual-use checks.
-
-**Solution approach:** The implementation keeps retrieval intentionally simple. It builds a small in-memory customs knowledge base, ranks candidate snippets with token overlap, and exposes retrieval through a tool the agent can call before answering.
-
-The flow is: user question -> retrieval tool selects top snippets -> agent answers using only grounded context and returns citation-style references such as `[KB-001]`. This makes the example easy to understand without introducing embeddings or external search infrastructure.
-
-### Sample 02: Customs RAG with Embeddings (🧭 Semantic Vector Retrieval)
+### Sample 01: Customs RAG with Embeddings (🧭 Semantic Vector Retrieval)
 
 **Pattern:** Embedding-based Retrieval-Augmented Generation using semantic vector search
 
@@ -313,6 +56,32 @@ var vectorStore = new InMemoryVectorStore(new InMemoryVectorStoreOptions
 });
 
 var collection = vectorStore.GetCollection<Guid, CustomsVectorStoreRecord>("customs-knowledge");
+```
+
+### Sample 02: Customs RAG with SQL Server 2025 (🗄️ SQL Vector Retrieval)
+
+**Pattern:** Embedding-based Retrieval-Augmented Generation using SQL Server 2025 vector storage
+
+| Detail | Value |
+| ------- | ------- |
+| Project | `02-customs-rag-sqlserver-2025` |
+| Agent | `CustomsSqlServerRagAgent` |
+| Key API | `CAST(@embedding AS vector(1536))`, `VECTOR_DISTANCE('cosine', ...)`, `Microsoft.Data.SqlClient` |
+| Behavior | Persists embeddings in SQL Server 2025 and retrieves nearest customs snippets before answering |
+
+This sample demonstrates semantic RAG with a database-backed vector store. It keeps the same customs domain and agent workflow as the in-memory embedding sample, but stores embeddings in SQL Server 2025 and queries them with vector distance functions.
+
+**Solution approach:** The sample creates a database and table if needed, embeds each customs knowledge entry, writes the embeddings into a SQL `vector(1536)` column, and uses cosine distance ordering to fetch the most relevant rows for the user question. The retrieval path is also exposed as an agent tool so the model can fetch grounding context on demand.
+
+```csharp
+SELECT TOP (@topK)
+    Reference,
+    Title,
+    Content,
+    Region,
+    RiskLevel
+FROM dbo.CustomsKnowledge
+ORDER BY VECTOR_DISTANCE('cosine', Embedding, CAST(@embedding AS vector(1536)));
 ```
 
 ---
@@ -806,10 +575,7 @@ dotnet build SupplyChainCustoms.AgentFramework.slnx
 ### Run a Sample
 
 ```bash
-# Sample 7 — basic customs RAG
-dotnet run --project samples/01-RAG/00-customs-rag-basic/00-customs-rag-basic
-
-# Sample 8 — embeddings-based customs RAG
+# Sample 7 — embeddings-based customs RAG
 dotnet run --project samples/01-RAG/01-customs-rag-embeddings/01-customs-rag-embeddings
 
 # Sample 1 — single agent, streaming
