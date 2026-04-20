@@ -1,436 +1,661 @@
-# Agent Framework Fundamentals (00)
+# 🎓 Agent Framework Fundamentals
 
-Knowledge sharing examples for the **Microsoft Agent Framework** (`Microsoft.Agents.AI` v1.1.0) in **.NET 10 / C# 13**. These samples demonstrate foundational patterns — from the simplest single-turn agent to reasoning effort tuning — that underpin all domain-specific work in this repository.
-
----
-
-## Samples
-
-| Sample | Project | Concept | Key Feature |
-| ------- | ------- | --------- | ------------ |
-| 01 | `00-simple-agent` | 🤖 Basic Agent Creation | Single-turn interactions, no tools |
-| 02 | `01-agent-with-tools` | 🔧 Agent + Tools | Function calling, tool registration |
-| 03 | `02-anti-pattern-without-session` | ⚠️ Session Anti-Pattern | Why sessions are needed |
-| 04 | `03-proper-session-multiturn` | 💾 Token Management in Sessions | Context persistence, token tracking per turn |
-| 05 | `04-structured-output` | 📋 Structured Output | JSON schema output with customs assessment |
-| 06 | `05-reasoning-effort` | 🧠 Reasoning Effort Controls | Baseline vs minimal vs high reasoning effort |
-| 07 | `06-middleware-usage` | 🛡️ Middleware | Agent run, function calling, and chat client middleware in customs context |
-| 08 | `07-agent-framework-skills` | 🧰📁 Combined Agent Skills | Programmatic + file-based Agent Skills in one customs workflow |
-| 09 | `08-csharp-file-script-runner` | 🧾 C# File Script Runner | File-based `SKILL.md` scripts executed via C# `.csx` runner (no Python dependency) |
+**Fundamentals (00)** –  Learning about building agents using **Microsoft Agent Framework** in .NET 10 / C# 13. This folder contains **9  sample projects** that helps building agents
 
 ---
 
-## NuGet Packages
+## 📚 Learning Path Overview
 
-| Package | Version | Used for |
-| ------- | ------- | ---------- |
-| `Microsoft.Agents.AI` | 1.1.0 | `AIAgent`, `AgentSession`, `AIFunctionFactory` |
-| `Microsoft.Agents.AI.OpenAI` | 1.1.0 | `AsAIAgent()` extension on `ChatClient` |
-| `Microsoft.Agents.AI.Workflows` | 1.1.0 | `Executor`, `WorkflowBuilder`, `InProcessExecution`, `IWorkflowContext` |
-| `Microsoft.Agents.AI.Workflows.Generators` | 1.1.0 | Source generator for `[MessageHandler]` — **required** in all workflow projects |
-| `Azure.AI.OpenAI` | 2.1.0 | `AzureOpenAIClient` |
-| `Microsoft.Extensions.AI` | 10.4.0 | Shared chat abstractions and chat message types |
-| `Microsoft.Extensions.Configuration.Json` | 9.0.4 | `appsettings.json` loading |
+All projects are in the `/samples/00-fundamentals/` folder. Start from **Project 1** and progress sequentially to build deep understanding.
 
-> **Important:** `Microsoft.Agents.AI.Workflows.Generators` must be referenced in every project that uses `[MessageHandler]`. Without it, the source generator does not run and `Executor` subclasses will fail to compile (`CS0534`).
+| # | Project | Concept |
+|---|---------|---------|
+| **1** | [00-simple-agent](#-project-1-simple-agent) | 🤖 Basic Agent Creation |
+| **2** | [01-agent-with-tools](#-project-2-agent-with-tools) | 🔧 Agent + Tools |
+| **3** | [02-anti-pattern-without-session](#-project-3-anti-pattern-without-session) | ⚠️ Session Anti-Pattern |
+| **4** | [03-proper-session-multiturn](#-project-4-proper-session-multiturn) | 💾 Multi-Turn Sessions |
+| **5** | [04-structured-output](#-project-5-structured-output) | 📋 Structured Output |
+| **6** | [05-reasoning-effort](#-project-6-reasoning-effort) | 🧠 Reasoning Controls |
+| **7** | [06-middleware-usage](#-project-7-middleware-usage) | 🛡️ Middleware & Monitoring |
+| **8** | [07-agent-framework-skills](#-project-8-agent-framework-skills) | 🧰 Skills (Inline) |
+| **9** | [08-csharp-file-script-runner](#-project-9-csharp-file-script-runner) | 🧾 Skills (File-Based) |
 
 ---
 
-## Framework Concepts — Overview Map
+## 🚀 Quick Start
 
-```mermaid
-flowchart LR
-    C1["🔧 Single Agent<br/>+ Tools"]
-    C2["💾 Multi-Turn<br/>Session Memory"]
-    C3["🔀 Multi-Agent<br/>Workflow"]
-    C4["🌍 Domain-Specific<br/>Customs"]
-    C5["🛂 Conditional<br/>Routing"]
-    C6["📦 End-to-End<br/>Pipeline"]
+### 1. Prerequisites
+- .NET 10 SDK
+- Azure OpenAI resource (or use DefaultAzureCredential with managed identity)
+- Azure CLI (for authentication)
 
-    C1 --> C2 --> C3
-    C3 -.-> C4 --> C5 --> C6
+### 2. Get Running in 2 Minutes
+```bash
+# Navigate to first project
+cd samples/00-fundamentals/00-simple-agent/00-simple-agent
 
-    style C1 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
-    style C2 fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#000
-    style C3 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px,color:#000
-    style C4 fill:#f8bbd0,stroke:#c2185b,stroke-width:2px,color:#000
-    style C5 fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:#000
-    style C6 fill:#b2dfdb,stroke:#00695c,stroke-width:2px,color:#000
+# Configure (if needed)
+cp ../../../shared/appsettings/appsettings.json .
+
+# Run
+dotnet run
+```
+
+### 3. Explore All Projects
+```bash
+# Try any project
+cd samples/00-fundamentals/{project-name}/{project-name}
+dotnet run
 ```
 
 ---
 
-## Sample Details
+## 📖 Project Details
 
-### Fundamentals 01: Simple Agent (🤖 Basic Agent Creation)
+### 🤖 Project 1: Simple Agent
 
-**Pattern:** Basic agent creation and single-turn interactions
+**Location:** `00-simple-agent/`  
+**Focus:** Minimal setup, single-turn interactions  
+**Time:** 10 minutes  
+**Difficulty:** ⭐ Beginner
 
-| Detail | Value |
-| ------- | ------- |
-| Project | `00-simple-agent` |
-| Agent | `SimpleAgent` |
-| Key API | `AsAIAgent()`, `RunAsync()` |
-| Tools | None |
+👉 [Full README](00-simple-agent/README.md)
 
-The most basic agent setup — create an agent with instructions and have a single conversation turn. Demonstrates the minimal code needed to get an agent responding to queries.
+**What You'll Learn:**
+- Create an agent from a ChatClient
+- Add instructions to guide behavior
+- Execute single-turn interactions
+- Handle streaming responses
 
+**Key Code:**
 ```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "You are a helpful assistant.", name: "SimpleAgent");
+AIAgent agent = chatClient.AsAIAgent(
+    instructions: "You are a helpful supply chain assistant.",
+    name: "BasicAgent");
 
-var response = await agent.RunAsync("Hello, who are you?");
+AgentResponse response = await agent.RunAsync("Your question here");
 Console.WriteLine(response.Text);
 ```
 
----
-
-### Fundamentals 02: Agent with Tools (🔧 Agent + Tools)
-
-**Pattern:** Agent with function calling capabilities
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `01-agent-with-tools` |
-| Agent | `ToolAgent` |
-| Key API | `AIFunctionFactory.Create()`, `AsAIAgent(tools: ...)` |
-| Tools | `GetWeather`, `ConvertTemperature`, `GetPopulation` |
-
-Shows how to register tools with an agent, enabling function calling. The agent can call these tools to get real-time data or perform calculations before responding.
-
-```csharp
-var tools = new[]
-{
-    AIFunctionFactory.Create(GetWeather),
-    AIFunctionFactory.Create(ConvertTemperature),
-    AIFunctionFactory.Create(GetPopulation)
-};
-
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "ToolAgent", tools: tools);
-
-var response = await agent.RunAsync("What's the weather in Tokyo and its population?");
-Console.WriteLine(response.Text);
-```
+**When to use:** Quick one-off questions, no conversation history needed
 
 ---
 
-### Fundamentals 03: Anti-Pattern Without Session (⚠️ Session Anti-Pattern)
+### 🔧 Project 2: Agent with Tools
 
-**Pattern:** Demonstrates why sessions are needed and the consequences of stateless design
+**Location:** `01-agent-with-tools/`  
+**Focus:** Function calling, tool registration, external data  
+**Time:** 15 minutes  
+**Difficulty:** ⭐⭐ Beginner
 
-| Detail | Value |
-| ------- | ------- |
-| Project | `02-anti-pattern-without-session` |
-| Agent | `StatelessAgent` |
-| Key API | Multiple `RunAsync()` calls without session |
-| Tools | None |
+👉 [Full README](01-agent-with-tools/README.md)
 
-**Pattern demonstration** showing what happens when you try multi-turn conversations without session memory. Each call to `RunAsync()` is completely independent, so the agent has no memory of previous turns. This illustrates the importance of proper session management.
+**What You'll Learn:**
+- Register tools using `AIFunctionFactory`
+- Enable function calling
+- Combine multiple tool classes
+- Handle tool results
 
+**Key Code:**
 ```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "StatelessAgent");
+List<AITool> tools = methods
+    .Select(m => AIFunctionFactory.Create(m, instance))
+    .Cast<AITool>()
+    .ToList();
 
-// Turn 1
-var response1 = await agent.RunAsync("My name is Alice");
-Console.WriteLine(response1.Text); // Agent acknowledges
-
-// Turn 2 — Agent has no memory of Turn 1!
-var response2 = await agent.RunAsync("What's my name?");
-Console.WriteLine(response2.Text); // Agent doesn't know!
+AIAgent agent = chatClient
+    .AsAIAgent(instructions: "...", tools: tools)
+    .AsBuilder()
+    .Use(ToolCallingMiddleware)
+    .Build();
 ```
+
+**When to use:** Agent needs real-time data, calculations, or external integrations
 
 ---
 
-### Fundamentals 04: Proper Session Multi-Turn (💾 Token Management in Sessions)
+### ⚠️ Project 3: Anti-Pattern Without Session
 
-**Pattern:** Correct multi-turn conversations with session persistence and token usage tracking
+**Location:** `02-anti-pattern-without-session/`  
+**Focus:** Understand why sessions are critical  
+**Time:** 10 minutes  
+**Difficulty:** ⭐⭐ Beginner
 
-| Detail | Value |
-| ------- | ------- |
-| Project | `03-proper-session-multiturn` |
-| Agent | `SessionAgent` |
-| Key API | `CreateSessionAsync()`, `RunAsync(session)`, `SerializeSessionAsync()`, `TokenUsage` |
-| Tools | None |
+👉 [Full README](02-anti-pattern-without-session/README.md)
 
-Demonstrates proper multi-turn conversations using `AgentSession` for context persistence with token usage tracking. The agent remembers information across turns, tracks cumulative token consumption (input/output/cache tokens), and can be serialized/deserialized for persistence. Each turn reports token metrics to understand API costs and quota management.
+**What You'll Learn:**
+- Why stateless interactions lose context
+- The problem with calling `RunAsync()` repeatedly without sessions
+- How agents lose memory between turns
+- Why this pattern fails in production
 
+**Key Code (What NOT to Do):**
 ```csharp
-var agent = azureOpenAI.GetChatClient(deployment)
-    .AsAIAgent(instructions: "...", name: "SessionAgent");
-
-var session = await agent.CreateSessionAsync();
-
-// Turn 1
-var response1 = await agent.RunAsync("My name is Alice", session);
-Console.WriteLine(response1.Text);
-Console.WriteLine($"Turn 1 — Input: {response1.InputTokenCount}, Output: {response1.OutputTokenCount}");
-
-// Turn 2 — Agent remembers and tracks tokens!
-var response2 = await agent.RunAsync("What's my name?", session);
-Console.WriteLine(response2.Text); // Agent correctly says "Alice"
-Console.WriteLine($"Turn 2 — Input: {response2.InputTokenCount}, Output: {response2.OutputTokenCount}");
-
-// Serialize session for persistence
-var json = await agent.SerializeSessionAsync(session);
+// ❌ ANTI-PATTERN: No session
+AgentResponse r1 = await agent.RunAsync("My name is Alice.");
+AgentResponse r2 = await agent.RunAsync("What's my name?");  // Agent won't know!
 ```
+
+**When to use:** Educational example showing common mistake
 
 ---
 
-### Fundamentals 05: Structured Output for Customs (📋 Structured Output)
+### 💾 Project 4: Proper Multi-Turn with AgentSession
 
-**Pattern:** Structured JSON output via response schema, typed responses, and streaming assembly
+**Location:** `03-proper-session-multiturn/`  
+**Focus:** Conversation history, context retention, token tracking  
+**Time:** 20 minutes  
+**Difficulty:** ⭐⭐ Beginner
 
-| Detail | Value |
-| ------- | ------- |
-| Project | `04-structured-output-customs` |
-| Agent | `CustomsStructuredOutputAgent` |
-| Key API | `ChatResponseFormat.ForJsonSchema<T>()`, `RunAsync<T>()`, `RunStreamingAsync()` |
-| Output Type | `CustomsClearanceAssessment` |
+👉 [Full README](03-proper-session-multiturn/README.md)
 
-Shows how to constrain the model output to a strongly typed customs clearance schema. The sample demonstrates three patterns: response-format JSON text, generic typed output, and streaming output reassembly plus deserialization.
+**What You'll Learn:**
+- Create and manage `AgentSession`
+- Execute multi-turn conversations with full context
+- Track token usage per turn
+- Serialize sessions for persistence
+- Stream responses with session state
 
+**Key Code (The CORRECT Way):**
 ```csharp
-var response = await agent.RunAsync<CustomsClearanceAssessment>(
-    "Assess shipment CSH-3017 to Germany with HS code 854231 and duty rate 4.2%.");
-
-Console.WriteLine(response.Result.RiskLevel);
-Console.WriteLine(response.Result.EstimatedDutyUsd);
-```
-
----
-
-### Fundamentals 06: Reasoning Effort Controls (🧠 Reasoning Effort Controls)
-
-**Pattern:** Reasoning effort configuration to optimize cost, latency, and quality trade-offs
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `05-reasoning-effort` |
-| Agent | `ReasoningEffortAgent` |
-| Key API | `ChatClientAgentOptions`, `MaxCompletionTokens`, Reasoning effort levels |
-| Modes | `Baseline`, `Minimal`, `High` |
-
-Demonstrates how to switch reasoning effort levels (when using reasoning models) to balance complexity, cost, and latency. Lower effort uses faster heuristics; higher effort uses extended thinking for complex problems. This sample shows three configurations on the same customs assessment task, comparing token usage and reasoning depth.
-
-```csharp
-// Baseline reasoning (default, balanced)
-var baselineAgent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions { });
-var baselineResponse = await baselineAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"Baseline - Tokens: {baselineResponse.OutputTokenCount}");
-
-// Minimal reasoning (faster, lower cost)
-var minimalAgent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions
-{
-    MaxCompletionTokens = 1000
-});
-var minimalResponse = await minimalAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"Minimal - Tokens: {minimalResponse.OutputTokenCount}");
-
-// High reasoning (extended thinking, higher accuracy for complex decisions)
-var highAgent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions
-{
-    MaxCompletionTokens = 16000
-});
-var highResponse = await highAgent.RunAsync<CustomsAssessment>(prompt);
-Console.WriteLine($"High - Tokens: {highResponse.OutputTokenCount}");
-
-// Compare results
-Console.WriteLine($"Baseline risk score: {baselineResponse.Result.RiskScore}");
-Console.WriteLine($"High reasoning risk score: {highResponse.Result.RiskScore}");
-```
-
----
-
-### Fundamentals 07: Combined Agent Skills (🧰📁 Combined Agent Skills)
-
-**Pattern:** Unified Microsoft Agent Framework skills sample combining programmatic and file-based skill styles
-
-| Detail | Value |
-| ------- | ------- |
-| Project | `06-agent-framework-skills` |
-| Agent | `CustomsSkillsAgent` |
-| Key API | `AgentInlineSkill`, `AddResource`, `AddScript`, `AgentSkillsProvider`, `AIContextProviders`, file `SKILL.md` discovery |
-| Inline Skills | `customs-clearance-packet`, `shipment-risk-triage` |
-| File Skill | `customs-clearance-playbook` |
-| Focus | Customs packet validation, duty estimation, risk lane recommendation, file-based playbook grounding |
-
-Demonstrates both major Agent Skills authoring approaches in one place. The sample shows how to:
-- Create skills directly in C# with `AgentInlineSkill`
-- Add static and dynamic resources with `AddResource(...)`
-- Add executable scripts with `AddScript(...)`
-- Define a file-based skill using `skills/customs-clearance-playbook/SKILL.md` and markdown resources
-- Register both skill sources with `AgentSkillsProvider`
-- Attach both providers through `ChatClientAgentOptions.AIContextProviders`
-
-This merged sample is the closest customs-domain equivalent to upstream Step02 + Step01 together. It also includes runtime tracing that prints `load_skill`, `read_skill_resource`, and script tool calls so you can confirm when skills are actually used.
-
-```csharp
-var inlineSkillsProvider = new AgentSkillsProvider(clearancePacketSkill, riskTriageSkill);
-var fileSkillsProvider = new AgentSkillsProvider(Path.Combine(AppContext.BaseDirectory, "skills"));
-
-var agent = azureClient
-    .GetChatClient(deploymentName)
-    .AsIChatClient()
-    .AsAIAgent(new ChatClientAgentOptions
-    {
-        Name = "CustomsSkillsAgent",
-        ChatOptions = new() { Instructions = "You are a customs clearance copilot." },
-        AIContextProviders = [inlineSkillsProvider, fileSkillsProvider],
-    });
-```
-
-**Sample use cases:**
-- `> Using the customs-clearance-playbook skill, what documents must be present before filing customs entry?`
-- `> What documents are required to clear an electronics shipment into the US?`
-- `> Estimate duty for a shipment valued at 84,500 USD with a duty rate of 6.5%.`
-- `> Assess a shipment from Vietnam with HS code 8542.31 and missing certificate of origin.`
-
----
-
-## Key Framework Patterns
-
-### Creating an Agent
-
-```csharp
-// From any ChatClient (Azure OpenAI, OpenAI, etc.)
-var agent = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey))
-    .GetChatClient(deploymentName)
-    .AsAIAgent(
-        instructions: "You are a ...",
-        name: "MyAgent",
-        tools: [AIFunctionFactory.Create(MyTool)]
-    );
-```
-
-### Tool Registration
-
-```csharp
-[Description("Retrieves the current status for a shipment.")]
-ShipmentStatus GetStatus(
-    [Description("The tracking number, e.g. TRK-001")] string trackingNumber)
-{ ... }
-
-// Register with the agent
-AIFunctionFactory.Create(GetStatus)
-```
-
-### Streaming vs. Non-Streaming
-
-```csharp
-// Streaming — for user-facing output
-await foreach (var update in agent.RunStreamingAsync(prompt, session))
-    Console.Write(update.Text);
-
-// Non-streaming — inside executor handlers
-var response = await agent.RunAsync(prompt);
-Console.WriteLine(response.Text);  // use .Text, not .ToString()
-```
-
-### Multi-Turn Sessions
-
-```csharp
+// ✅ CORRECT: Using AgentSession
 AgentSession session = await agent.CreateSessionAsync();
 
-// Each turn automatically uses prior context
-await foreach (var update in agent.RunStreamingAsync(turn1, session)) ...
-await foreach (var update in agent.RunStreamingAsync(turn2, session)) ...
+AgentResponse r1 = await agent.RunAsync("My name is Alice.", session);
+AgentResponse r2 = await agent.RunAsync("What's my name?", session);  // ✅ Remembers!
 
-// Persist and restore
-var json    = await agent.SerializeSessionAsync(session);
-var resumed = await agent.DeserializeSessionAsync(json);
+// Token tracking
+r1.WriteTokenUsageToConsole("Turn 1");
+// Output: ✓ Turn 1 | Input: 54 tokens | Output: 68 tokens | Total: 122 tokens
 ```
+
+**When to use:** Multi-turn conversations, chatbots, dialogue systems
 
 ---
 
-## Known Patterns & Troubleshooting
+### 📋 Project 5: Structured Output
 
-### ChatResponseFormat Disambiguation
+**Location:** `04-structured-output/`  
+**Focus:** Type-safe responses, JSON schemas, deserialization  
+**Time:** 15 minutes  
+**Difficulty:** ⭐⭐⭐ Intermediate
 
-When a project imports both `OpenAI.Chat` and `Microsoft.Extensions.AI`, the `ChatResponseFormat` type becomes ambiguous. **Always use the fully qualified type** to avoid compilation errors:
+👉 [Full README](04-structured-output/README.md)
 
+**What You'll Learn:**
+- Define response schemas as C# classes
+- Use `ChatResponseFormat.ForJsonSchema<T>()`
+- Automatic deserialization with `RunAsync<T>()`
+- Get compile-time type safety
+- Stream structured responses
+
+**Key Code:**
 ```csharp
-// ❌ Ambiguous — will not compile
-ResponseFormat = ChatResponseFormat.ForJsonSchema<MyOutputType>()
+// Define response type
+public class CustomsClearanceAssessment
+{
+    public string ShipmentId { get; set; }
+    public string RiskLevel { get; set; }
+    public decimal EstimatedDutyUsd { get; set; }
+}
 
-// ✅ Correct — use full namespace
-ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<MyOutputType>()
+// Get typed response
+AgentResponse<CustomsClearanceAssessment> response = 
+    await agent.RunAsync<CustomsClearanceAssessment>("Assess shipment...");
+
+// Direct access to typed object
+var riskLevel = response.Output.RiskLevel;  // ✅ Type-safe!
 ```
 
-### Reasoning Effort Configuration
+**When to use:** API responses, data processing, machine-readable output
 
-In `Microsoft.Agents.AI.OpenAI v1.1.0`, custom `ChatOptions` for reasoning effort must be passed via `AsAIAgent(ChatClientAgentOptions)`. Named parameters like `options: ChatOptions(...)` are **not available**:
+---
 
+### 🧠 Project 6: Reasoning Effort Controls
+
+**Location:** `05-reasoning-effort/`  
+**Focus:** Tuning reasoning depth, cost optimization, quality control  
+**Time:** 15 minutes  
+**Difficulty:** ⭐⭐⭐ Intermediate
+
+👉 [Full README](05-reasoning-effort/README.md)
+
+**What You'll Learn:**
+- Use baseline (default) reasoning
+- Enable minimal reasoning for speed
+- Use high reasoning for complex analysis
+- Monitor reasoning tokens and cost
+- Choose appropriate levels for tasks
+
+**Key Code:**
 ```csharp
-// ❌ Will fail — no 'options:' parameter exists
-var agent = chatClient.AsAIAgent(instructions: "...", options: new ChatOptions { ... });
-
-// ✅ Correct — use ChatClientAgentOptions
-var agent = chatClient.AsAIAgent(instructions: "...", new ChatClientAgentOptions
+// Minimal reasoning (fast, cheap)
+var agent1 = chatClient.AsAIAgent(new ChatClientAgentOptions
 {
-    ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<T>()
+    ChatOptions = new ChatOptions
+    {
+        RawRepresentationFactory = _ => new ChatCompletionOptions
+        {
+            ReasoningEffortLevel = ChatReasoningEffortLevel.Minimal
+        }
+    }
+});
+
+// High reasoning (deep thinking, expensive)
+var agent2 = chatClient.AsAIAgent(new ChatClientAgentOptions
+{
+    ChatOptions = new ChatOptions
+    {
+        RawRepresentationFactory = _ => new ChatCompletionOptions
+        {
+            ReasoningEffortLevel = ChatReasoningEffortLevel.High
+        }
+    }
 });
 ```
 
-### Composing Multiple Tool Sets
+**Comparison:**
+| Level | Speed | Cost | Use For |
+|-------|-------|------|---------|
+| Minimal | ⚡ Fast | 💰 Low | Quick Q&A |
+| Baseline | ⚡⚡ Medium | 💰💰 Medium | Standard tasks |
+| High | 🐢 Slow | 💰💰💰 High | Complex analysis |
 
-**Create each tool sequence independently and concatenate**, rather than chaining `Select()` over existing `AIFunction` objects:
+**When to use:** Complex workflows needing strategic decisions
 
+---
+
+### 🛡️ Project 7: Middleware Usage
+
+**Location:** `06-middleware-usage/`  
+**Focus:** Request/response interception, logging, validation, monitoring  
+**Time:** 20 minutes  
+**Difficulty:** ⭐⭐⭐ Intermediate
+
+👉 [Full README](06-middleware-usage/README.md)
+
+**What You'll Learn:**
+- Implement chat client middleware
+- Implement function calling middleware
+- Stack multiple middleware layers
+- Log operations without changing core code
+- Validate inputs and outputs
+- Monitor performance
+
+**Key Code:**
 ```csharp
-// ❌ Will fail — type inference and delegate mismatch
-var tools = toolSet1.Concat(AIFunctionFactory.Create(tool2Method)).Select(t => t);
+// Define middleware
+async Task<ChatResponse> LoggingMiddleware(
+    ChatMessage[] messages,
+    ChatOptions options,
+    Func<ChatMessage[], ChatOptions, Task<ChatResponse>> next)
+{
+    var stopwatch = Stopwatch.StartNew();
+    Console.WriteLine($"[Request] {messages.Last().Content}");
+    
+    var response = await next(messages, options);  // Call next layer
+    
+    stopwatch.Stop();
+    Console.WriteLine($"[Response] {response.Message.Content}");
+    Console.WriteLine($"[Latency] {stopwatch.ElapsedMilliseconds}ms");
+    
+    return response;
+}
 
-// ✅ Correct — create each sequence separately
-var toolsFromClass1 = new[] { AIFunctionFactory.Create(method1), ... };
-var toolsFromClass2 = new[] { AIFunctionFactory.Create(method2), ... };
-var allTools = toolsFromClass1.Concat(toolsFromClass2).ToArray();
+// Apply middleware
+var agent = chatClient
+    .AsIChatClient()
+    .AsBuilder()
+    .Use(LoggingMiddleware)
+    .BuildAIAgent(...);
+```
+
+**When to use:** Monitoring, audit logging, security validation, rate limiting
+
+---
+
+### 🧰 Project 8: Agent Framework Skills
+
+**Location:** `07-agent-framework-skills/`  
+**Focus:** Inline skills, resources, scripts, modular knowledge  
+**Time:** 20 minutes  
+**Difficulty:** ⭐⭐⭐ Intermediate
+
+👉 [Full README](07-agent-framework-skills/README.md)
+
+**What You'll Learn:**
+- Create inline skills with fluent API
+- Add resources (reference materials)
+- Add scripts (executable functions)
+- Use skills with agents
+- Combine multiple skills
+
+**Key Code:**
+```csharp
+var clearanceSkill = new AgentInlineSkill(
+    name: "customs-clearance-packet",
+    description: "Guide customs clearance review",
+    instructions: "Use this skill for document and duty questions")
+    .AddResource(
+        "required-documents",
+        "Commercial invoice, packing list, bill of lading...",
+        "Reference: Required documents checklist")
+    .AddScript(
+        "estimate-duty",
+        (decimal value, decimal rate) => value * (rate / 100m),
+        "Calculate estimated duty");
+
+var agent = chatClient.AsAIAgent(new ChatClientAgentOptions
+{
+    AIContextProviders = [new AgentSkillsProvider([clearanceSkill])]
+});
+```
+
+**When to use:** Complex domain workflows, reference materials, calculations
+
+---
+
+### 🧾 Project 9: C# File-Based Skill Scripts
+
+**Location:** `08-csharp-file-script-runner/`  
+**Focus:** File-based skills, dynamic script loading, C# scripting  
+**Time:** 20 minutes  
+**Difficulty:** ⭐⭐⭐ Intermediate
+
+👉 [Full README](08-csharp-file-script-runner/README.md)
+
+**What You'll Learn:**
+- Load skills from `SKILL.md` files
+- Execute C# `.csx` scripts dynamically
+- Structure skill files on disk
+- Run skills without Python dependency
+- Use Roslyn for script compilation
+
+**File Structure:**
+```
+skills/
+├── csharp-duty-and-lane/
+│   ├── SKILL.md           # Skill metadata
+│   └── estimate-duty.csx  # Executable script
+```
+
+**SKILL.md Format:**
+```markdown
+# Customs Duty Skill
+## Description
+Estimate customs duty...
+## Scripts
+### estimate-duty
+- Calculates duty from value and rate
+```
+
+**C# Script (.csx):**
+```csharp
+var declaredValue = Parameters.declaredValue;
+var dutyRate = Parameters.dutyRate;
+var estimatedDuty = declaredValue * (dutyRate / 100m);
+return JsonSerializer.Serialize(new { estimatedDuty });
+```
+
+**When to use:** Maintainable workflows, non-Python environments, dynamic scripts
+
+---
+
+## 🎯 Recommended Learning Paths
+
+### Path 1: Beginner to Core (1-2 Hours)
+```
+Start → Project 1 (Simple) 
+      → Project 2 (Tools) 
+      → Project 3 (Anti-Pattern Warning)
+      → Project 4 (Sessions - CORE)
+```
+✅ After this, you can build basic multi-turn agents with tools.
+
+### Path 2: Add Advanced Features (Next 1-2 Hours)
+```
+Path 1 Completed
+      → Project 5 (Structured Output)
+      → Project 6 (Reasoning)
+      → Project 7 (Middleware)
+```
+✅ Add type-safety, cost optimization, and monitoring.
+
+### Path 3: Complex Workflows (Next 1-2 Hours)
+```
+Path 2 Completed
+      → Project 8 (Inline Skills)
+      → Project 9 (File-Based Skills)
+```
+✅ Build maintainable, modular domain workflows.
+
+---
+
+## 📊 Architecture Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    01 - Simple Agent (Baseline)                 │
+└─────────────────┬───────────────────────────────────────────────┘
+                  │
+     ┌────────────┴────────────┐
+     ▼                         ▼
+┌──────────────┐        ┌──────────────┐
+│ 02 - Tools   │        │ 03 - Session │ (Anti-Pattern)
+└──────────────┘        └──────────────┘
+     │                         │
+     └────────────┬────────────┘
+                  ▼
+         ┌──────────────────────┐
+         │ 04 - Multi-Turn Sess │ ⭐ CORE PATTERN
+         └────────┬─────────────┘
+                  │
+     ┌────────────┼────────────┐
+     ▼            ▼            ▼
+┌─────────┐ ┌──────────┐ ┌────────────┐
+│ Struct  │ │ Reasoning│ │ Middleware │
+│ Output  │ │ Effort   │ │ Monitoring │
+└─────────┘ └──────────┘ └────────────┘
+     │            │            │
+     └────────────┼────────────┘
+                  ▼
+         ┌──────────────────────┐
+         │ Skills (Inline/File) │ - Advanced Workflows
+         └──────────────────────┘
 ```
 
 ---
 
-## Prerequisites & Setup
+## 🔑 Key Concepts Summary
 
-### Requirements
+| Concept | Project | Key Takeaway |
+|---------|---------|--------------|
+| **Agents** | 1, 2 | Wrap ChatClient for AI features |
+| **Tools** | 2, 7 | Enable function calling |
+| **Sessions** | 3, 4 | Maintain conversation history |
+| **Structured Output** | 5 | Get typed, reliable responses |
+| **Reasoning Effort** | 6 | Balance cost, latency, quality |
+| **Middleware** | 7 | Intercept requests/responses |
+| **Skills** | 8, 9 | Encapsulate domain knowledge |
 
-- .NET 10 SDK
-- Azure OpenAI resource with a deployed model (e.g. `gpt-4o`)
+---
 
-### Configuration
+## 📁 Repository Structure
 
-Each sample reads `appsettings.json` (linked from `shared/appsettings/appsettings.json`):
+```
+learning_agent_framework/
+├── samples/
+│   └── 00-fundamentals/           ← You are here
+│       ├── README.md              ← Master README (this file)
+│       ├── README.original.md     ← Original README (preserved)
+│       ├── 00-simple-agent/
+│       │   ├── README.md          ← Project README
+│       │   └── 00-simple-agent/
+│       ├── 01-agent-with-tools/
+│       │   ├── README.md
+│       │   └── 01-agent-with-tools/
+│       ├── 02-anti-pattern-without-session/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 03-proper-session-multiturn/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 04-structured-output/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 05-reasoning-effort/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 06-middleware-usage/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 07-agent-framework-skills/
+│       │   ├── README.md
+│       │   └── ...
+│       ├── 08-csharp-file-script-runner/
+│       │   ├── README.md
+│       │   └── ...
+│       └── Shared/
+│           └── TokenUsageConsoleExtensions.cs
+├── shared/
+│   └── appsettings/
+│       └── appsettings.json       ← Share config across projects
+├── README.md                       ← Main repo README
+└── SupplyChainCustoms.AgentFramework.slnx  ← Solution file
+```
 
+---
+
+## 🛠️ Configuration Setup
+
+### Option 1: Use appsettings.json
 ```json
 {
   "AzureOpenAI": {
-    "Endpoint": "https://<your-resource>.openai.azure.com/",
-    "DeploymentName": "gpt-4o",
-    "ApiKey": "<your-api-key>"
+    "Endpoint": "https://<resource>.openai.azure.com/",
+    "DeploymentName": "gpt-4o-mini",
+    "ApiKey": "your-key-here-or-leave-empty"
   }
 }
 ```
 
-### Run
-
-```bash
-# 01 — simple agent
-dotnet run --project samples/00-fundamentals/00-simple-agent/00-simple-agent
-
-# 02 — agent with tools
-dotnet run --project samples/00-fundamentals/01-agent-with-tools/01-agent-with-tools
-
-# 03 — anti-pattern (no session)
-dotnet run --project samples/00-fundamentals/02-anti-pattern-without-session/02-anti-pattern-without-session
-
-# 04 — proper session + token tracking
-dotnet run --project samples/00-fundamentals/03-proper-session-multiturn/03-proper-session-multiturn
-
-# 05 — structured output
-dotnet run --project samples/00-fundamentals/04-structured-output/04-structured-output-customs
-
-# 06 — reasoning effort controls
-dotnet run --project samples/00-fundamentals/05-reasoning-effort/05-reasoning-effort
-
-# 07 — combined Agent Skills APIs (inline + file-based)
-dotnet run --project samples/00-fundamentals/06-agent-framework-skills/06-agent-framework-skills
+### Option 2: Managed Identity (No API Key)
+Leave `ApiKey` empty. The code will use:
+```csharp
+new AzureOpenAIClient(endpoint, new DefaultAzureCredential())
 ```
+
+Requires: `az login` and appropriate Azure RBAC roles.
+
+---
+
+## 📚 NuGet Packages Used
+
+All projects use these core packages:
+
+```xml
+<PackageReference Include="Microsoft.Agents.AI" Version="1.1.0" />
+<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.1.0" />
+<PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.1.0" />
+<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+<PackageReference Include="Microsoft.Extensions.AI" Version="10.4.0" />
+```
+
+---
+
+## 🤝 Common Patterns
+
+### Pattern 1: Basic Agent Loop
+```csharp
+AIAgent agent = chatClient.AsAIAgent("Your instructions");
+while (true)
+{
+    var response = await agent.RunAsync(Console.ReadLine());
+    Console.WriteLine(response.Text);
+}
+```
+
+### Pattern 2: Multi-Turn with Session
+```csharp
+AgentSession session = await agent.CreateSessionAsync();
+while (true)
+{
+    var response = await agent.RunAsync(input, session);
+    Console.WriteLine(response.Text);
+}
+```
+
+### Pattern 3: Tools + Session + Middleware
+```csharp
+var agent = chatClient
+    .AsIChatClient()
+    .AsBuilder()
+    .Use(LoggingMiddleware)
+    .BuildAIAgent(tools: customTools);
+
+var session = await agent.CreateSessionAsync();
+// ... use with session
+```
+
+---
+
+## ✅ Troubleshooting
+
+### Q: "AzureOpenAI:Endpoint not configured"
+**A:** Check `appsettings.json` exists and has valid Endpoint value.
+
+### Q: "Authentication failed"
+**A:** Either set `ApiKey` in appsettings.json or run `az login`.
+
+### Q: "Model deployment not found"
+**A:** Check `AzureOpenAI:DeploymentName` matches your Azure OpenAI deployment.
+
+### Q: "Token limit exceeded"
+**A:** Session history is too long. Trim old messages or create new session.
+
+---
+
+## 📖 Next Resources
+
+- **Microsoft Agents Framework:** https://github.com/microsoft/agents
+- **Azure OpenAI:** https://learn.microsoft.com/azure/ai-services/openai/
+- **Semantic Kernel:** https://github.com/microsoft/semantic-kernel
+
+---
+
+## 🎓 Completion Checklist
+
+After working through all projects:
+
+- [ ] Understand basic agent creation and single-turn interactions
+- [ ] Know how to register and call tools
+- [ ] Can identify why sessions are critical for multi-turn
+- [ ] Build context-aware, stateful conversations
+- [ ] Get type-safe structured output from agents
+- [ ] Optimize cost with reasoning effort controls
+- [ ] Implement logging and monitoring with middleware
+- [ ] Create modular workflows with skills
+- [ ] Load and execute file-based scripts
+
+---
+
+## 📝 License & Attribution
+
+These samples are part of the Microsoft Agent Framework learning initiative.  
+Original README preserved as `README.original.md`.
+
+---
+
+## 🚀 Ready to Begin?
+
+👉 **Start with Project 1:** [Simple Agent](00-simple-agent/README.md)
+
+Each project has a detailed README with:
+- Core concepts explained
+- Code snippets
+- Best practices
+- Common patterns
+- Next steps
+
+Happy learning! 🎉
+
