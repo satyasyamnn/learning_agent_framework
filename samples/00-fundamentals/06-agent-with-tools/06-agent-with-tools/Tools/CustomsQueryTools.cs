@@ -37,8 +37,7 @@ public class CustomsQueryTools
     // ─────────────────────────────────────────────────────────────────────────
 
     [Description("Get the customs clearance status and summary for a shipment.")]
-    public string GetShipmentStatus(
-        [Description("Shipment ID, e.g. CSH-3001")] string shipmentId)
+    public string GetShipmentStatus([Description("Shipment ID, e.g. CSH-3001")] string shipmentId)
     {
         if (!Shipments.TryGetValue(shipmentId.ToUpperInvariant(), out var s))
             return $"Shipment '{shipmentId}' not found.";
@@ -49,8 +48,7 @@ public class CustomsQueryTools
     }
 
     [Description("Look up the tariff entry for a commodity HS code — includes duty rate, VAT rate, and import-licence requirement.")]
-    public string LookupTariffEntry(
-        [Description("6-digit HS commodity code, e.g. 8542.31")] string hsCode)
+    public string LookupTariffEntry([Description("6-digit HS commodity code, e.g. 8542.31")] string hsCode)
     {
         if (!TariffTable.TryGetValue(hsCode, out var t))
             return $"No tariff entry found for HS code '{hsCode}'.";
@@ -60,8 +58,7 @@ public class CustomsQueryTools
     }
 
     [Description("Check whether a country is on the customs sanctions list and subject to import restrictions.")]
-    public string IsCountrySanctioned(
-        [Description("ISO-2 country code, e.g. IR, CN, US")] string countryCode)
+    public string IsCountrySanctioned([Description("ISO-2 country code, e.g. IR, CN, US")] string countryCode)
     {
         bool sanctioned = SanctionedCountries.Contains(countryCode.ToUpperInvariant());
         return sanctioned
@@ -98,9 +95,6 @@ public class CustomsQueryTools
 }
 
 // ── Supporting record types (private to this file) ────────────────────────────
-internal record ShipmentSummary(
-    string Id, string Importer, string Origin,
-    decimal Value, string Currency, string Status, string[] HsCodes);
+internal record ShipmentSummary(string Id, string Importer, string Origin, decimal Value, string Currency, string Status, string[] HsCodes);
 
-internal record TariffInfo(
-    string Description, decimal DutyRatePercent, decimal VatRatePercent, bool RequiresLicense);
+internal record TariffInfo(string Description, decimal DutyRatePercent, decimal VatRatePercent, bool RequiresLicense);

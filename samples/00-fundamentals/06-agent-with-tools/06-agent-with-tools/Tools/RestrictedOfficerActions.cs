@@ -16,7 +16,7 @@ public class RestrictedOfficerActions
         "This is a legally binding order that cannot be reversed without senior officer review. " +
         "Requires explicit officer approval before it is recorded.")]
     public static string FlagShipmentForDetention(
-        [Description("ID of the shipment to detain, e.g. CSH-3004")]              string shipmentId,
+        [Description("ID of the shipment to detain, e.g. CSH-3004")] string shipmentId,
         [Description("Legal or compliance reason justifying the detention order")] string reason)
     {
         Console.ForegroundColor = ConsoleColor.Red;

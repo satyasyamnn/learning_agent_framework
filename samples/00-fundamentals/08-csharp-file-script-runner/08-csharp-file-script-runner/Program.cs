@@ -1,10 +1,7 @@
 #pragma warning disable MAAI001
 using System.Text.Json;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.AI;
@@ -14,22 +11,31 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"]
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority));
-
-var azureClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(endpoint, new DefaultAzureCredential())
-    : new AzureOpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+var chatClient = FundamentalsAgentFactory.CreateChatClient(config);
 
 var skillsPath = Path.Combine(AppContext.BaseDirectory, "skills");
-var skillsProvider = new AgentSkillsProvider(skillsPath, CSharpFileSkillScriptRunner.RunAsync);
+var dutySkillRoot = Path.Combine(skillsPath, "csharp-duty-and-lane");
 
-AIAgent agent = azureClient
-    .GetChatClient(deploymentName)
+var csharpDutyAndLaneSkill = new AgentInlineSkill(
+    name: "csharp-duty-and-lane",
+    description: "Estimate customs duty and determine whether formal entry is likely for simple declaration checks.",
+    instructions: """
+        Use this skill for duty calculations or formal-entry threshold checks.
+        Always run the estimate-duty script instead of calculating the result yourself.
+        Read the entry-policy resource when the user asks why formal entry is or is not likely.
+        """)
+    .AddResource(
+        "entry-policy",
+        () => File.ReadAllText(Path.Combine(dutySkillRoot, "references", "entry-policy.md")),
+        "Reference guidance for formal entry threshold checks.")
+    .AddScript(
+        "estimate-duty",
+        (decimal declaredValueUsd, decimal dutyRatePercent) => CSharpFileSkillScriptRunner.RunDutyEstimateScript(dutySkillRoot, declaredValueUsd, dutyRatePercent),
+        "Estimate customs duty by executing the C# estimate-duty.csx script from disk.");
+
+var skillsProvider = new AgentSkillsProvider(csharpDutyAndLaneSkill);
+
+AIAgent agent = chatClient
     .AsIChatClient()
     .AsAIAgent(new ChatClientAgentOptions
     {
@@ -46,8 +52,6 @@ AIAgent agent = azureClient
         AIContextProviders = [skillsProvider],
     });
 
-AgentSession session = await agent.CreateSessionAsync();
-
 Console.WriteLine("=============================================================");
 Console.WriteLine("  C# File-Based Skill Runner Demo");
 Console.WriteLine("=============================================================");
@@ -59,16 +63,7 @@ foreach (var prompt in new[]
     "For a declared value of 1200 USD at 3.2%, estimate duty and tell me whether formal entry is likely.",
 })
 {
-    // Create a new session for each prompt to ensure skill invocation is captured
-    var promptSession = await agent.CreateSessionAsync();
-    
-    Console.ForegroundColor = ConsoleColor.Cyan;
     Console.WriteLine($"> {prompt}");
-    Console.ResetColor();
-
-    AgentResponse response = await agent.RunAsync(prompt, promptSession);
-    PrintSkillToolCalls(response);
-    Console.WriteLine(response.Text);
     Console.WriteLine();
 }
 
@@ -124,35 +119,58 @@ static void PrintSkillToolCalls(AgentResponse response)
 
 internal static class CSharpFileSkillScriptRunner
 {
-    private static readonly ScriptOptions ScriptOptions = Microsoft.CodeAnalysis.Scripting.ScriptOptions.Default
+    private static readonly ScriptOptions ScriptOptions = ScriptOptions.Default
         .AddReferences(typeof(object).Assembly, typeof(JsonSerializer).Assembly, typeof(Enumerable).Assembly)
         .AddImports("System", "System.Linq", "System.Collections.Generic", "System.Text.Json");
 
-    public static async Task<object?> RunAsync(
-        AgentFileSkill skill,
-        AgentFileSkillScript script,
-        AIFunctionArguments arguments,
+
+    public static Task<object?> RunAsync(
+        string scriptPath,
+        string scriptName,
+        IDictionary<string, object?> arguments,
+        CancellationToken cancellationToken)
+        => RunScriptAsync(scriptPath, scriptName, arguments, cancellationToken);
+
+    public static string RunDutyEstimateScript(string dutySkillRoot, decimal declaredValueUsd, decimal dutyRatePercent)
+    {
+        var scriptPath = Path.Combine(dutySkillRoot, "scripts", "estimate-duty.csx");
+
+        var result = RunAsync(
+            scriptPath,
+            "estimate-duty",
+            new Dictionary<string, object?>
+            {
+                ["declaredValueUsd"] = declaredValueUsd,
+                ["dutyRatePercent"] = dutyRatePercent,
+            },
+            CancellationToken.None).GetAwaiter().GetResult();
+
+        return result?.ToString() ?? "(no output)";
+    }
+
+    private static async Task<object?> RunScriptAsync(
+        string scriptPath,
+        string scriptName,
+        IDictionary<string, object?> arguments,
         CancellationToken cancellationToken)
     {
-        if (!File.Exists(script.FullPath))
+        if (!File.Exists(scriptPath))
         {
-            return $"Error: Script file not found: {script.FullPath}";
+            return $"Error: Script file not found: {scriptPath}";
         }
 
-        if (!string.Equals(Path.GetExtension(script.FullPath), ".csx", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(Path.GetExtension(scriptPath), ".csx", StringComparison.OrdinalIgnoreCase))
         {
-            return $"Error: Unsupported script extension '{Path.GetExtension(script.FullPath)}'. This sample only allows .csx scripts.";
+            return $"Error: Unsupported script extension '{Path.GetExtension(scriptPath)}'. This sample only allows .csx scripts.";
         }
 
-        // Log: Script execution initiated
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("\n📋 [Script Execution Details]");
-        Console.WriteLine($"  📁 Script File: {script.FullPath}");
-        Console.WriteLine($"  📄 Script Name: {script.Name}");
+        Console.WriteLine($"  📁 Script File: {scriptPath}");
+        Console.WriteLine($"  📄 Script Name: {scriptName}");
 
-        string code = await File.ReadAllTextAsync(script.FullPath, cancellationToken);
+        string code = await File.ReadAllTextAsync(scriptPath, cancellationToken);
 
-        // Log: Show script content
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("\n  📝 Script Content:");
         foreach (var line in code.Split(Environment.NewLine))
@@ -160,12 +178,9 @@ internal static class CSharpFileSkillScriptRunner
             Console.WriteLine($"     {line}");
         }
 
-        var args = arguments.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-        // Log: Show passed arguments
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("\n  📥 Arguments Passed:");
-        foreach (var arg in args)
+        foreach (var arg in arguments)
         {
             Console.WriteLine($"     {arg.Key} = {arg.Value} ({arg.Value?.GetType().Name ?? "null"})");
         }
@@ -174,7 +189,7 @@ internal static class CSharpFileSkillScriptRunner
         Console.WriteLine("\n  ⚙️  Executing C# Script...");
         Console.ResetColor();
 
-        var globals = new SkillScriptGlobals(skill, script, args);
+        var globals = new SkillScriptGlobals(scriptPath, scriptName, arguments);
 
         var result = await CSharpScript.EvaluateAsync<object?>(
             code,
@@ -195,6 +210,6 @@ internal static class CSharpFileSkillScriptRunner
 }
 
 public sealed record SkillScriptGlobals(
-    AgentFileSkill Skill,
-    AgentFileSkillScript Script,
+    string ScriptPath,
+    string ScriptName,
     IDictionary<string, object?> Args);

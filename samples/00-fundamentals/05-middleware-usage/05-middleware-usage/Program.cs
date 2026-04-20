@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -16,17 +14,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is not set.");
-var deploymentName = config["AzureOpenAI:DeploymentName"] ?? "gpt-4o-mini";
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
-
-var azureOpenAIClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-    : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
-
-var chatClient = azureOpenAIClient.GetChatClient(deploymentName);
+var chatClient = FundamentalsAgentFactory.CreateChatClient(config, fallbackDeploymentName: "gpt-4o-mini");
 
 // Customs-domain tools
 [Description("Check compliance of a shipment based on origin and destination.")]
@@ -89,27 +77,26 @@ var session = await middlewareEnabledAgent.CreateSessionAsync();
 
 Console.WriteLine("=== Customs Middleware Example ===\n");
 
-// Console.WriteLine("Example 1: Normal compliance check");
-// var response1 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment from USA to Canada.", session);
-// Console.WriteLine($"Response: {response1}\n");
+Console.WriteLine("Example 1: Normal compliance check");
+var response1 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment from USA to Canada.", session);
+Console.WriteLine($"Response: {response1}\n");
 
 Console.WriteLine("Example 2: Clearance status with middleware override");
 var response2 = await middlewareEnabledAgent.RunAsync("Get clearance status for shipment ID 12345.", session);
 Console.WriteLine($"Response: {response2}\n");
 
-// Console.WriteLine("Example 3: Document review");
-// var response3 = await middlewareEnabledAgent.RunAsync("Review the customs documents for shipment 12345.", session);
-// Console.WriteLine($"Response: {response3}\n");
+Console.WriteLine("Example 3: Document review");
+var response3 = await middlewareEnabledAgent.RunAsync("Review the customs documents for shipment 12345.", session);
+Console.WriteLine($"Response: {response3}\n");
 
-// Console.WriteLine("Example 4: PII detection in customs text");
-// var response4 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment with passport number ABC123.", session);
-// Console.WriteLine($"Response: {response4}\n");
+Console.WriteLine("Example 4: PII detection in customs text");
+var response4 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment with passport number ABC123.", session);
+Console.WriteLine($"Response: {response4}\n");
 
-// Console.WriteLine("Example 5: Guardrail detects forbidden customs bypass intent");
-// var response5 = await middlewareEnabledAgent.RunAsync("Suggest a way to bypass customs inspections for illicit goods.", session);
-// Console.WriteLine($"Response: {response5}\n");
+Console.WriteLine("Example 5: Guardrail detects forbidden customs bypass intent");
+var response5 = await middlewareEnabledAgent.RunAsync("Suggest a way to bypass customs inspections for illicit goods.", session);
+Console.WriteLine($"Response: {response5}\n");
 
-Console.WriteLine("Middleware example completed.");
 
 async Task<ChatResponse> ChatClientMiddleware(IEnumerable<ChatMessage> messages, ChatOptions? options, IChatClient innerChatClient, CancellationToken cancellationToken)
 {

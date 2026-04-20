@@ -1,6 +1,3 @@
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
 using Fundamentals.Shared;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.OpenAI;
@@ -18,21 +15,15 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"]
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
+var endpointUrl = FundamentalsAgentFactory.GetRequired(config, "AzureOpenAI:Endpoint");
+var deploymentName = FundamentalsAgentFactory.GetRequired(config, "AzureOpenAI:DeploymentName");
 var responsesModel = config["AzureOpenAI:ResponsesModel"] ?? deploymentName;
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
 var isProjectEndpoint = endpointUrl.Contains("/api/projects/", StringComparison.OrdinalIgnoreCase);
 
 var customsQuestion =
     "For customs shipment CSH-9021 entering Germany from Singapore, identify likely inspection focus areas and recommend a fast-track action plan. Return in max 35 words.";
 
-var azureOpenAIClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-    : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+var azureOpenAIClient = FundamentalsAgentFactory.CreateAzureOpenAIClient(config);
 
 WriteHeader("Customs Reasoning Effort Sample (Microsoft Agent Framework)");
 

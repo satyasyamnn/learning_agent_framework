@@ -1,34 +1,18 @@
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
-using OpenAI.Chat;
 
 // Load configuration
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"]
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
-
 Console.WriteLine("=== Anti-Pattern: Multi-Turn without Session ===\n");
-Console.WriteLine("⚠️  WARNING: This example demonstrates an ANTI-PATTERN!\n");
 
-AIAgent agent = (string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-    : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey)))
-    .GetChatClient(deploymentName)
-    .AsAIAgent(
-        instructions: "You are a helpful supply chain assistant. Remember important shipment details the user tells you.",
-        name: "ContextAgent");
+AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+    config,
+    instructions: "You are a helpful supply chain assistant. Remember important shipment details the user tells you.",
+    name: "ContextAgent");
 
 Console.WriteLine(">>> Turn 1: User shares their logistics profile\n");
 AgentResponse response1 = await agent.RunAsync("My name is Alice. I manage customs clearance for electronics imports through Rotterdam.");

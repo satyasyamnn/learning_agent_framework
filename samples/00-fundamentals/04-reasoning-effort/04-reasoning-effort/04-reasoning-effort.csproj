@@ -22,5 +22,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\Shared\TokenUsageConsoleExtensions.cs" Link="Shared\TokenUsageConsoleExtensions.cs" />
+    <Compile Include="..\..\Shared\FundamentalsAgentFactory.cs" Link="Shared\FundamentalsAgentFactory.cs" />
   </ItemGroup>
 </Project>

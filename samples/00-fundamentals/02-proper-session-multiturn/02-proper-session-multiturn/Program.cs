@@ -1,34 +1,18 @@
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
-using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Configuration;
-using OpenAI.Chat;
 using Fundamentals.Shared;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.Configuration;
 
 // Load configuration
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"] 
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"] 
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
-
 Console.WriteLine("=== Proper Multi-Turn with AgenticSession (Supply Chain Context) ===\n");
 
-AIAgent agent = (string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-    : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey)))
-    .GetChatClient(deploymentName)
-    .AsAIAgent(
-        instructions: "You are a helpful supply chain and customs assistant. Remember important operational details the user tells you and use them in future responses.",
-        name: "ContextAwareAgent");
+AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+    config,
+    instructions: "You are a helpful supply chain and customs assistant. Remember important operational details the user tells you and use them in future responses.",
+    name: "ContextAwareAgent");
 
 // Create a session - this maintains conversation history
 AgentSession session = await agent.CreateSessionAsync();
@@ -58,25 +42,21 @@ response4.WriteTokenUsageToConsole("Turn 4");
 Console.WriteLine();
 
 Console.WriteLine(">>> Turn 5: Complex question using accumulated context\n");
-AgentResponse response5 = await agent.RunAsync(
-    "Based on my role and goals, what are the top three operational changes I should prioritize to reduce customs delays?", 
-    session);
+AgentResponse response5 = await agent.RunAsync( "Based on my role and goals, what are the top three operational changes I should prioritize to reduce customs delays?", session);
 Console.WriteLine($"Agent: {response5.Text}\n");
 response5.WriteTokenUsageToConsole("Turn 5");
 Console.WriteLine();
 
 // Demonstrate streaming with session
 Console.WriteLine(">>> Turn 6: Streaming response with context\n");
-await agent.RunStreamingAsync(
-        "Give me three practical weekly actions to improve customs document quality and lower inspection delays.",
-        session)
+await agent.RunStreamingAsync("Give me three practical weekly actions to improve customs document quality and lower inspection delays.", session)
     .WriteStreamingResponseAndTokenUsageToConsoleAsync("Turn 6 (Streaming)");
 Console.WriteLine();
 
 // Demonstrate session serialization/persistence
 Console.WriteLine(">>> Serializing session for persistence\n");
 var serializedSession = await agent.SerializeSessionAsync(session);
-Console.WriteLine($"✓ Session serialized successfully");
+Console.WriteLine($">>> Session serialized successfully");
 Console.WriteLine($"  (In real apps, save this to a database or cache)\n");
 
 // Create a new session and restore from serialization

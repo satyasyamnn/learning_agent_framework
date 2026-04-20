@@ -21,6 +21,6 @@ Use this skill when the user asks about customs entry readiness, missing documen
 
 ## Suggested resources
 
-- `required-documents.md`
-- `risk-cues.md`
-- `officer-actions.md`
+- `references/required-documents.md`
+- `references/risk-cues.md`
+- `references/officer-actions.md`

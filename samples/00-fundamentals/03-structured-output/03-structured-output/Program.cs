@@ -1,9 +1,6 @@
 using System.Text.Json;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using OpenAI.Chat;
@@ -13,20 +10,9 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"]
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority)).ToString();
-
 Console.WriteLine("=== Structured Output for Customs Clearance ===\n");
 
-var azureOpenAIClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
-    : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
-
-ChatClient chatClient = azureOpenAIClient.GetChatClient(deploymentName);
+ChatClient chatClient = FundamentalsAgentFactory.CreateChatClient(config);
 JsonSerializerOptions jsonOptions = new()
 {
     PropertyNameCaseInsensitive = true

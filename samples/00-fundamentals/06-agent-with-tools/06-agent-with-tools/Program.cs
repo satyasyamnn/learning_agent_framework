@@ -1,9 +1,6 @@
-#pragma warning disable MEAI001
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
@@ -13,15 +10,6 @@ using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
-
-var endpointUrl    = config["AzureOpenAI:Endpoint"]       ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"] ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey         = config["AzureOpenAI:ApiKey"];
-var endpoint       = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority));
-
-var azureClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(endpoint, new DefaultAzureCredential())
-    : new AzureOpenAIClient(endpoint, new AzureKeyCredential(apiKey));
 
 CustomsQueryTools queryTools = new();
 MethodInfo[] methods = typeof(CustomsQueryTools).GetMethods(
@@ -37,14 +25,13 @@ List<AITool> tools = methods
     .Cast<AITool>()
     .ToList();
 
-tools.Add(new ApprovalRequiredAIFunction(
-    AIFunctionFactory.Create(RestrictedOfficerActions.FlagShipmentForDetention)));
+var detentionTool = AIFunctionFactory.Create(RestrictedOfficerActions.FlagShipmentForDetention);
+#pragma warning disable MEAI001 // ApprovalRequiredAIFunction is experimental in the current package version.
+tools.Add(new ApprovalRequiredAIFunction(detentionTool));
+#pragma warning restore MEAI001
 
-
-
-AIAgent agent = azureClient
-    .GetChatClient(deploymentName)
-    .AsAIAgent(
+AIAgent agent = FundamentalsAgentFactory.CreateAgent(
+        config,
         instructions: """
             You are a customs operations assistant with access to shipment data,
             tariff lookups, sanction screening, and duty calculations.
@@ -58,7 +45,6 @@ AIAgent agent = azureClient
     .Use(ToolCallingMiddleware)
     .Build();
 
-// ── 4. Multi-turn session loop with approval gate ─────────────────────────────
 AgentSession session = await agent.CreateSessionAsync();
 
 Console.WriteLine("=============================================================");
@@ -84,7 +70,6 @@ while (true)
 
     AgentResponse response = await agent.RunAsync(new ChatMessage(ChatRole.User, input), session);
 
-    // Approval gate — loop until every pending approval request is resolved
     List<ToolApprovalRequestContent> approvalRequests = response.Messages
         .SelectMany(m => m.Contents)
         .OfType<ToolApprovalRequestContent>()
@@ -106,6 +91,7 @@ while (true)
                 Console.ResetColor();
 
                 bool approved = Console.ReadLine()?.Equals("Y", StringComparison.OrdinalIgnoreCase) ?? false;
+
                 return new ChatMessage(ChatRole.User, [request.CreateResponse(approved)]);
             })
             .ToList();
@@ -124,7 +110,6 @@ while (true)
     Console.WriteLine(new string('-', 60));
 }
 
-// ── Middleware: log every tool invocation before it executes ─────────────────
 async ValueTask<object?> ToolCallingMiddleware(
     AIAgent callingAgent,
     FunctionInvocationContext context,
@@ -140,5 +125,12 @@ async ValueTask<object?> ToolCallingMiddleware(
     Console.WriteLine(sb.ToString());
     Console.ResetColor();
 
-    return await next(context, cancellationToken);
+    try
+    {
+        return await next(context, cancellationToken);
+    }
+    catch
+    {
+        throw;
+    }
 }

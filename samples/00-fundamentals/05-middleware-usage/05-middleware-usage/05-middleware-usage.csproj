@@ -18,4 +18,8 @@
   <ItemGroup>
     <None Include="..\..\..\..\shared\appsettings\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\FundamentalsAgentFactory.cs" Link="Shared\FundamentalsAgentFactory.cs" />
+  </ItemGroup>
 </Project>

@@ -1,11 +1,7 @@
 #pragma warning disable MAAI001
 using System.Text.Json;
-using System.Linq;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
+using Fundamentals.Shared;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.OpenAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 
@@ -13,16 +9,7 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var endpointUrl = config["AzureOpenAI:Endpoint"]
-    ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
-var deploymentName = config["AzureOpenAI:DeploymentName"]
-    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName not configured");
-var apiKey = config["AzureOpenAI:ApiKey"];
-var endpoint = new Uri(new Uri(endpointUrl).GetLeftPart(UriPartial.Authority));
-
-var azureClient = string.IsNullOrWhiteSpace(apiKey)
-    ? new AzureOpenAIClient(endpoint, new DefaultAzureCredential())
-    : new AzureOpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+var chatClient = FundamentalsAgentFactory.CreateChatClient(config);
 
 var clearancePacketSkill = new AgentInlineSkill(
     name: "customs-clearance-packet",
@@ -161,12 +148,15 @@ var riskTriageSkill = new AgentInlineSkill(
         },
         "Score shipment clearance risk and recommend Green, Amber, or Red lane.");
 
-var inlineSkillsProvider = new AgentSkillsProvider(clearancePacketSkill, riskTriageSkill);
 var fileSkillsPath = Path.Combine(AppContext.BaseDirectory, "skills");
-var fileSkillsProvider = new AgentSkillsProvider(fileSkillsPath);
+var skillsProvider = new AgentSkillsProviderBuilder()
+                     .UseSkill(clearancePacketSkill) 
+                     .UseSkill(riskTriageSkill)  
+                     .UseFileSkill(fileSkillsPath)
+                     .UseFileScriptRunner(SubprocessScriptRunner.RunAsync)
+                     .Build();
 
-AIAgent agent = azureClient
-    .GetChatClient(deploymentName)
+AIAgent agent = chatClient
     .AsIChatClient()
     .AsAIAgent(new ChatClientAgentOptions
     {
@@ -179,7 +169,7 @@ AIAgent agent = azureClient
                 duty estimates, or lane recommendations. Keep answers concrete and operational.
                 """
         },
-            AIContextProviders = [inlineSkillsProvider, fileSkillsProvider],
+            AIContextProviders = [skillsProvider],
     });
 
 AgentSession session = await agent.CreateSessionAsync();
@@ -187,30 +177,21 @@ AgentSession session = await agent.CreateSessionAsync();
 Console.WriteLine("=============================================================");
 Console.WriteLine("  Customs Agent Skills Demo");
 Console.WriteLine("=============================================================");
-Console.WriteLine("This merged sample uses BOTH Agent Skills styles:");
-Console.WriteLine("- Programmatic skills via AgentInlineSkill");
-Console.WriteLine("- File-based skills via SKILL.md in the skills folder");
-Console.WriteLine("- AgentSkillsProvider for each source");
-Console.WriteLine();
 Console.WriteLine("Skills created in this sample:");
 Console.WriteLine("- Inline: customs-clearance-packet, shipment-risk-triage");
 Console.WriteLine("- File-based: customs-clearance-playbook");
 Console.WriteLine();
 
-foreach (var prompt in new[]
+var prompts = new[]
 {
-    "Using the customs-clearance-playbook skill, what documents must be present before filing customs entry?",
+    "What documents must be present before filing customs entry?",
     "What documents are required to clear an electronics shipment into the US, and when would you route it to amber instead of green?",
     "Assess a shipment from Vietnam with HS code 8542.31, declared value 84500 USD, duty rate 6.5%, certificate of origin missing, no restricted-party hit, and no import license requirement.",
-})
-{
-    Console.ForegroundColor = ConsoleColor.Cyan;
-    Console.WriteLine($"> {prompt}");
-    Console.ResetColor();
+};
 
-    AgentResponse response = await agent.RunAsync(prompt, session);
-    PrintSkillToolCalls(response);
-    Console.WriteLine(response.Text);
+foreach (var prompt in prompts)
+{
+    Console.WriteLine($"> {prompt}");
     Console.WriteLine();
 }
 
@@ -260,4 +241,4 @@ static void PrintSkillToolCalls(AgentResponse response)
     }
 
     Console.ResetColor();
-}
+} 
