@@ -1,4 +1,4 @@
-# 💾 Fundamentals 04: Proper Multi-Turn with AgentSession
+# 💾 Fundamentals 03: Proper Multi-Turn with AgentSession
 
 ## Overview
 This project demonstrates the **correct pattern for multi-turn conversations** using `AgentSession`. The agent maintains full conversation history, allowing it to remember context across multiple interactions and provide coherent, context-aware responses.
@@ -103,12 +103,12 @@ Persist sessions to maintain conversations across app restarts.
 ## Project Structure
 
 ```
-03-proper-session-multiturn/
+02-proper-session-multiturn/
 ├── Program.cs              # Multi-turn session demo with 6 turns
 ├── Shared/
 │   └── TokenUsageConsoleExtensions.cs  # Helper to display token usage
 ├── appsettings.json        # Azure OpenAI config
-└── 03-proper-session-multiturn.csproj
+└── 02-proper-session-multiturn.csproj
 ```
 
 ---
@@ -258,7 +258,7 @@ var restored = await agent.DeserializeSessionAsync(serialized);
 ## Running the Project
 
 ```bash
-cd 03-proper-session-multiturn
+cd 02-proper-session-multiturn
 dotnet run
 ```
 
@@ -295,15 +295,15 @@ while ((DateTime.UtcNow - lastActivity).TotalMinutes < 30)
 
 ## Next Steps
 
-- 👉 **Next Project:** [04-structured-output](../04-structured-output/README.md) - Get typed responses from agents
-- 🔗 **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Combine sessions with tools
-- 🔗 **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Monitor session interactions
+- 👉 **Next Project:** [03-structured-output](../03-structured-output/README.md) - Get typed responses from agents
+- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Combine sessions with tools
+- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor session interactions
 
 ---
 
 ## Comparison with Anti-Pattern
 
-| Feature | Without Session (02) | With Session (04) |
+| Feature | Without Session (02) | With Session (03) |
 |---------|---------------------|-------------------|
 | Context Retention | ❌ None | ✅ Full history |
 | Multi-Turn | ❌ Fails | ✅ Works perfectly |

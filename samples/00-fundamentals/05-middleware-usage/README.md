@@ -1,4 +1,4 @@
-# 🛡️ Fundamentals 07: Middleware Usage
+# 🛡️ Fundamentals 06: Middleware Usage
 
 ## Overview
 This project demonstrates how to intercept and modify agent behavior using **middleware**. Middleware lets you log operations, validate inputs, modify responses, enforce policies, and more—all without changing core agent logic.
@@ -142,7 +142,7 @@ var agent = chatClient
 ## Project Structure
 
 ```
-06-middleware-usage/
+05-middleware-usage/
 ├── Program.cs              # Main with 3 middleware demonstrations
 ├── Middleware/
 │   ├── ChatClientMiddleware.cs     # Log requests/responses
@@ -152,7 +152,7 @@ var agent = chatClient
 │   ├── CustomsQueryTools.cs        # Customs domain tools
 │   └── ApprovalRequiredAIFunction.cs
 ├── appsettings.json        # Azure OpenAI config
-└── 06-middleware-usage.csproj
+└── 05-middleware-usage.csproj
 ```
 
 ---
@@ -402,7 +402,7 @@ Request travels: 1 → 2 → 3 → 4 → 5 → Agent → 5 → 4 → 3 → 2 →
 ## Running the Project
 
 ```bash
-cd 06-middleware-usage
+cd 05-middleware-usage
 dotnet run
 ```
 
@@ -436,6 +436,6 @@ Tool Usage:
 ## Next Steps
 
 - 👉 **Next Project:** [07-agent-framework-skills](../07-agent-framework-skills/README.md) - Agent Skills for complex workflows
-- 🔗 **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools that middleware monitors
-- 🔗 **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Sessions with middleware
+- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Tools that middleware monitors
+- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Sessions with middleware
 

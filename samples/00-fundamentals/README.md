@@ -11,12 +11,12 @@ All projects are in the `/samples/00-fundamentals/` folder. Start from **Project
 | # | Project | Concept |
 |---|---------|---------|
 | **1** | [00-simple-agent](#-project-1-simple-agent) | 🤖 Basic Agent Creation |
-| **2** | [01-agent-with-tools](#-project-2-agent-with-tools) | 🔧 Agent + Tools |
-| **3** | [02-anti-pattern-without-session](#-project-3-anti-pattern-without-session) | ⚠️ Session Anti-Pattern |
-| **4** | [03-proper-session-multiturn](#-project-4-proper-session-multiturn) | 💾 Multi-Turn Sessions |
-| **5** | [04-structured-output](#-project-5-structured-output) | 📋 Structured Output |
-| **6** | [05-reasoning-effort](#-project-6-reasoning-effort) | 🧠 Reasoning Controls |
-| **7** | [06-middleware-usage](#-project-7-middleware-usage) | 🛡️ Middleware & Monitoring |
+| **2** | [01-anti-pattern-without-session](#-project-2-anti-pattern-without-session) | ⚠️ Session Anti-Pattern |
+| **3** | [02-proper-session-multiturn](#-project-3-proper-session-multiturn) | 💾 Multi-Turn Sessions |
+| **4** | [03-structured-output](#-project-4-structured-output) | 📋 Structured Output |
+| **5** | [04-reasoning-effort](#-project-5-reasoning-effort) | 🧠 Reasoning Controls |
+| **6** | [05-middleware-usage](#-project-6-middleware-usage) | 🛡️ Middleware & Monitoring |
+| **7** | [06-agent-with-tools](#-project-7-agent-with-tools) | 🔧 Agent + Tools |
 | **8** | [07-agent-framework-skills](#-project-8-agent-framework-skills) | 🧰 Skills (Inline) |
 | **9** | [08-csharp-file-script-runner](#-project-9-csharp-file-script-runner) | 🧾 Skills (File-Based) |
 
@@ -81,47 +81,14 @@ Console.WriteLine(response.Text);
 
 ---
 
-### 🔧 Project 2: Agent with Tools
+### ⚠️ Project 2: Anti-Pattern Without Session
 
-**Location:** `01-agent-with-tools/`  
-**Focus:** Function calling, tool registration, external data  
-**Time:** 15 minutes  
-**Difficulty:** ⭐⭐ Beginner
-
-👉 [Full README](01-agent-with-tools/README.md)
-
-**What You'll Learn:**
-- Register tools using `AIFunctionFactory`
-- Enable function calling
-- Combine multiple tool classes
-- Handle tool results
-
-**Key Code:**
-```csharp
-List<AITool> tools = methods
-    .Select(m => AIFunctionFactory.Create(m, instance))
-    .Cast<AITool>()
-    .ToList();
-
-AIAgent agent = chatClient
-    .AsAIAgent(instructions: "...", tools: tools)
-    .AsBuilder()
-    .Use(ToolCallingMiddleware)
-    .Build();
-```
-
-**When to use:** Agent needs real-time data, calculations, or external integrations
-
----
-
-### ⚠️ Project 3: Anti-Pattern Without Session
-
-**Location:** `02-anti-pattern-without-session/`  
+**Location:** `01-anti-pattern-without-session/`  
 **Focus:** Understand why sessions are critical  
 **Time:** 10 minutes  
 **Difficulty:** ⭐⭐ Beginner
 
-👉 [Full README](02-anti-pattern-without-session/README.md)
+👉 [Full README](01-anti-pattern-without-session/README.md)
 
 **What You'll Learn:**
 - Why stateless interactions lose context
@@ -140,14 +107,14 @@ AgentResponse r2 = await agent.RunAsync("What's my name?");  // Agent won't know
 
 ---
 
-### 💾 Project 4: Proper Multi-Turn with AgentSession
+### 💾 Project 3: Proper Multi-Turn with AgentSession
 
-**Location:** `03-proper-session-multiturn/`  
+**Location:** `02-proper-session-multiturn/`  
 **Focus:** Conversation history, context retention, token tracking  
 **Time:** 20 minutes  
 **Difficulty:** ⭐⭐ Beginner
 
-👉 [Full README](03-proper-session-multiturn/README.md)
+👉 [Full README](02-proper-session-multiturn/README.md)
 
 **What You'll Learn:**
 - Create and manage `AgentSession`
@@ -173,14 +140,14 @@ r1.WriteTokenUsageToConsole("Turn 1");
 
 ---
 
-### 📋 Project 5: Structured Output
+### 📋 Project 4: Structured Output
 
-**Location:** `04-structured-output/`  
+**Location:** `03-structured-output/`  
 **Focus:** Type-safe responses, JSON schemas, deserialization  
 **Time:** 15 minutes  
 **Difficulty:** ⭐⭐⭐ Intermediate
 
-👉 [Full README](04-structured-output/README.md)
+👉 [Full README](03-structured-output/README.md)
 
 **What You'll Learn:**
 - Define response schemas as C# classes
@@ -211,14 +178,14 @@ var riskLevel = response.Output.RiskLevel;  // ✅ Type-safe!
 
 ---
 
-### 🧠 Project 6: Reasoning Effort Controls
+### 🧠 Project 5: Reasoning Effort Controls
 
-**Location:** `05-reasoning-effort/`  
+**Location:** `04-reasoning-effort/`  
 **Focus:** Tuning reasoning depth, cost optimization, quality control  
 **Time:** 15 minutes  
 **Difficulty:** ⭐⭐⭐ Intermediate
 
-👉 [Full README](05-reasoning-effort/README.md)
+👉 [Full README](04-reasoning-effort/README.md)
 
 **What You'll Learn:**
 - Use baseline (default) reasoning
@@ -265,14 +232,14 @@ var agent2 = chatClient.AsAIAgent(new ChatClientAgentOptions
 
 ---
 
-### 🛡️ Project 7: Middleware Usage
+### 🛡️ Project 6: Middleware Usage
 
-**Location:** `06-middleware-usage/`  
+**Location:** `05-middleware-usage/`  
 **Focus:** Request/response interception, logging, validation, monitoring  
 **Time:** 20 minutes  
 **Difficulty:** ⭐⭐⭐ Intermediate
 
-👉 [Full README](06-middleware-usage/README.md)
+👉 [Full README](05-middleware-usage/README.md)
 
 **What You'll Learn:**
 - Implement chat client middleware
@@ -314,8 +281,40 @@ var agent = chatClient
 
 ---
 
-### 🧰 Project 8: Agent Framework Skills
+### 🔧 Project 7: Agent with Tools
 
+**Location:** `06-agent-with-tools/`  
+**Focus:** Function calling, tool registration, external data  
+**Time:** 15 minutes  
+**Difficulty:** ⭐⭐ Beginner
+
+👉 [Full README](06-agent-with-tools/README.md)
+
+**What You'll Learn:**
+- Register tools using `AIFunctionFactory`
+- Enable function calling
+- Combine multiple tool classes
+- Handle tool results
+
+**Key Code:**
+```csharp
+List<AITool> tools = methods
+    .Select(m => AIFunctionFactory.Create(m, instance))
+    .Cast<AITool>()
+    .ToList();
+
+AIAgent agent = chatClient
+    .AsAIAgent(instructions: "...", tools: tools)
+    .AsBuilder()
+    .Use(ToolCallingMiddleware)
+    .Build();
+```
+
+**When to use:** Agent needs real-time data, calculations, or external integrations
+
+---
+
+### � Project 8: Agent Framework Skills
 **Location:** `07-agent-framework-skills/`  
 **Focus:** Inline skills, resources, scripts, modular knowledge  
 **Time:** 20 minutes  
@@ -406,20 +405,20 @@ return JsonSerializer.Serialize(new { estimatedDuty });
 ### Path 1: Beginner to Core (1-2 Hours)
 ```
 Start → Project 1 (Simple) 
-      → Project 2 (Tools) 
-      → Project 3 (Anti-Pattern Warning)
-      → Project 4 (Sessions - CORE)
+      → Project 2 (Anti-Pattern Warning)
+      → Project 3 (Sessions - CORE)
 ```
-✅ After this, you can build basic multi-turn agents with tools.
+✅ After this, you can build basic multi-turn agents.
 
-### Path 2: Add Advanced Features (Next 1-2 Hours)
+### Path 2: Add Tools & Advanced Features (Next 1-2 Hours)
 ```
 Path 1 Completed
-      → Project 5 (Structured Output)
-      → Project 6 (Reasoning)
-      → Project 7 (Middleware)
+      → Project 4 (Structured Output)
+      → Project 5 (Reasoning)
+      → Project 6 (Middleware)
+      → Project 7 (Tools)
 ```
-✅ Add type-safety, cost optimization, and monitoring.
+✅ Add type-safety, cost optimization, monitoring, and function calling.
 
 ### Path 3: Complex Workflows (Next 1-2 Hours)
 ```
@@ -441,13 +440,14 @@ Path 2 Completed
      ┌────────────┴────────────┐
      ▼                         ▼
 ┌──────────────┐        ┌──────────────┐
-│ 02 - Tools   │        │ 03 - Session │ (Anti-Pattern)
+│ 02 - Session │        │ 07 - Tools   │
+│ Anti-Pattern │        │              │
 └──────────────┘        └──────────────┘
      │                         │
      └────────────┬────────────┘
                   ▼
          ┌──────────────────────┐
-         │ 04 - Multi-Turn Sess │ ⭐ CORE PATTERN
+         │ 03 - Multi-Turn Sess │ ⭐ CORE PATTERN
          └────────┬─────────────┘
                   │
      ┌────────────┼────────────┐
@@ -470,12 +470,13 @@ Path 2 Completed
 
 | Concept | Project | Key Takeaway |
 |---------|---------|--------------|
-| **Agents** | 1, 2 | Wrap ChatClient for AI features |
-| **Tools** | 2, 7 | Enable function calling |
-| **Sessions** | 3, 4 | Maintain conversation history |
-| **Structured Output** | 5 | Get typed, reliable responses |
-| **Reasoning Effort** | 6 | Balance cost, latency, quality |
-| **Middleware** | 7 | Intercept requests/responses |
+| **Agents** | 1 | Wrap ChatClient for AI features |
+| **Anti-Pattern** | 2 | Why sessions are critical |
+| **Sessions** | 3 | Maintain conversation history |
+| **Structured Output** | 4 | Get typed, reliable responses |
+| **Reasoning Effort** | 5 | Balance cost, latency, quality |
+| **Middleware** | 6 | Intercept requests/responses |
+| **Tools** | 7 | Enable function calling |
 | **Skills** | 8, 9 | Encapsulate domain knowledge |
 
 ---
@@ -491,30 +492,30 @@ learning_agent_framework/
 │       ├── 00-simple-agent/
 │       │   ├── README.md          ← Project README
 │       │   └── 00-simple-agent/
-│       ├── 01-agent-with-tools/
+│       ├── 01-anti-pattern-without-session/
 │       │   ├── README.md
-│       │   └── 01-agent-with-tools/
-│       ├── 02-anti-pattern-without-session/
+│       │   └── 01-anti-pattern-without-session/
+│       ├── 02-proper-session-multiturn/
 │       │   ├── README.md
-│       │   └── ...
-│       ├── 03-proper-session-multiturn/
+│       │   └── 02-proper-session-multiturn/
+│       ├── 03-structured-output/
 │       │   ├── README.md
-│       │   └── ...
-│       ├── 04-structured-output/
+│       │   └── 03-structured-output/
+│       ├── 04-reasoning-effort/
 │       │   ├── README.md
-│       │   └── ...
-│       ├── 05-reasoning-effort/
+│       │   └── 04-reasoning-effort/
+│       ├── 05-middleware-usage/
 │       │   ├── README.md
-│       │   └── ...
-│       ├── 06-middleware-usage/
+│       │   └── 05-middleware-usage/
+│       ├── 06-agent-with-tools/
 │       │   ├── README.md
-│       │   └── ...
+│       │   └── 06-agent-with-tools/
 │       ├── 07-agent-framework-skills/
 │       │   ├── README.md
-│       │   └── ...
+│       │   └── 07-agent-framework-skills/
 │       ├── 08-csharp-file-script-runner/
 │       │   ├── README.md
-│       │   └── ...
+│       │   └── 08-csharp-file-script-runner/
 │       └── Shared/
 │           └── TokenUsageConsoleExtensions.cs
 ├── shared/

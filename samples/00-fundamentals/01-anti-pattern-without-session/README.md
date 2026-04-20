@@ -1,4 +1,4 @@
-# ⚠️ Fundamentals 03: Anti-Pattern - Multi-Turn Without Session
+# ⚠️ Fundamentals 02: Anti-Pattern - Multi-Turn Without Session
 
 ## Overview
 This project is a **deliberate anti-pattern** showing what happens when you try to maintain multi-turn conversations **without using sessions**. Each call to `RunAsync()` is independent — the agent has no memory of previous interactions.
@@ -77,10 +77,10 @@ The instructions say "Remember important details" but there's **no mechanism to 
 ## Project Structure
 
 ```
-02-anti-pattern-without-session/
+01-anti-pattern-without-session/
 ├── Program.cs              # Anti-pattern demo (4 turns, agent loses context)
 ├── appsettings.json        # Azure OpenAI config
-└── 02-anti-pattern-without-session.csproj
+└── 01-anti-pattern-without-session.csproj
 ```
 
 ---
@@ -173,7 +173,7 @@ Watch out for these signs:
 ## Running the Project
 
 ```bash
-cd 02-anti-pattern-without-session
+cd 01-anti-pattern-without-session
 dotnet run
 ```
 
@@ -183,8 +183,8 @@ Observe how the agent loses context between turns.
 
 ## Next Steps
 
-- 👉 **Next Project:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - **See the correct pattern!**
-- 🔗 **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Monitor session interactions
+- 👉 **Next Project:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - **See the correct pattern!**
+- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor session interactions
 
 ---
 

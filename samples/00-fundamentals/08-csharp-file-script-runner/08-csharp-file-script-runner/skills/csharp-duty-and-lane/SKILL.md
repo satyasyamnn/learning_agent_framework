@@ -5,7 +5,19 @@ description: Customs helper skill that estimates duty and suggests handling path
 
 Use this skill when the user asks for duty estimates, basic customs cost checks, or whether a declaration might require formal handling.
 
-Workflow:
-1. Load this skill.
-2. Run `scripts/estimate-duty.csx` when declared value and duty rate are present.
-3. Explain estimated duty and whether formal entry is likely.
+## Scripts
+
+### estimate-duty
+**Purpose:** Calculate estimated duty from declared value and duty rate.
+
+**Parameters:**
+- `declaredValueUsd` (number): The declared value in USD
+- `dutyRatePercent` (number): The duty rate as a percentage (e.g., 6.5 for 6.5%)
+
+**Returns:** JSON object containing:
+- `declaredValueUsd`: The input declared value
+- `dutyRatePercent`: The input duty rate
+- `estimatedDutyUsd`: Calculated duty amount (rounded to 2 decimals)
+- `formalEntryLikely`: Boolean indicating if value >= $2,500 (requires formal entry)
+
+**Example:** For $84,500 at 6.5%, returns estimated duty of $5,492.50

@@ -1,4 +1,4 @@
-# 🧠 Fundamentals 06: Reasoning Effort Controls
+# 🧠 Fundamentals 05: Reasoning Effort Controls
 
 ## Overview
 This project demonstrates how to tune **reasoning effort levels** in agent responses. Different problems require different levels of thinking: simple questions need minimal reasoning, while complex analysis requires extended thought.
@@ -146,10 +146,10 @@ response.WriteTokenUsageToConsole("High Reasoning");
 ## Project Structure
 
 ```
-05-reasoning-effort/
+04-reasoning-effort/
 ├── Program.cs              # 3 reasoning level demonstrations
 ├── appsettings.json        # Azure OpenAI config
-└── 05-reasoning-effort.csproj
+└── 04-reasoning-effort.csproj
 ```
 
 ---
@@ -307,7 +307,7 @@ Start Question ─────┤
 ## Running the Project
 
 ```bash
-cd 05-reasoning-effort
+cd 04-reasoning-effort
 dotnet run
 ```
 
@@ -349,7 +349,7 @@ async Task<AgentResponse> RunWithAdaptiveReasoning(string question, AIAgent agen
 
 ## Next Steps
 
-- 👉 **Next Project:** [06-middleware-usage](../06-middleware-usage/README.md) - Monitor and intercept agent operations
-- 🔗 **Related:** [04-structured-output](../04-structured-output/README.md) - Get reliable structured responses
-- 🔗 **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Multi-turn with reasoning
+- 👉 **Next Project:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor and intercept agent operations
+- 🔗 **Related:** [03-structured-output](../03-structured-output/README.md) - Get reliable structured responses
+- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Multi-turn with reasoning
 

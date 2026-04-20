@@ -1,4 +1,4 @@
-# 🔧 Fundamentals 02: Agent with Tools
+# 🔧 Fundamentals 07: Agent with Tools
 
 ## Overview
 This project demonstrates how to extend agents with **function calling** capabilities. The agent can call tools to retrieve real-time data, perform calculations, or execute domain-specific logic before responding.
@@ -90,14 +90,14 @@ while (true)
 ## Project Structure
 
 ```
-01-agent-with-tools/
+06-agent-with-tools/
 ├── Program.cs              # Main entry point with session loop
 ├── Tools/
 │   ├── CustomsQueryTools.cs    # Customs domain tools (port status, duty calc, etc.)
 │   ├── SimpleTools.cs          # General utilities
 │   └── ApprovalRequiredAIFunction.cs  # Special tool with approval gate
 ├── appsettings.json        # Azure OpenAI config
-└── 01-agent-with-tools.csproj
+└── 06-agent-with-tools.csproj
 ```
 
 ---
@@ -193,7 +193,7 @@ This wraps a tool to require user confirmation before execution.
 ## Running the Project
 
 ```bash
-cd 01-agent-with-tools
+cd 06-agent-with-tools
 dotnet run
 ```
 
@@ -203,7 +203,7 @@ Interact with the agent by typing prompts. The agent will automatically call too
 
 ## Next Steps
 
-- 👉 **Next Project:** [02-anti-pattern-without-session](../02-anti-pattern-without-session/README.md) - See why sessions matter
-- 🔗 **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Tools + Sessions together
-- 🔗 **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Monitor tool calls with middleware
+- 👉 **Next Project:** [01-anti-pattern-without-session](../01-anti-pattern-without-session/README.md) - See why sessions matter
+- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Tools + Sessions together
+- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor tool calls with middleware
 

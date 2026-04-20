@@ -1,4 +1,4 @@
-# 📋 Fundamentals 05: Structured Output
+# 📋 Fundamentals 04: Structured Output
 
 ## Overview
 This project demonstrates how to get **strongly-typed, structured responses** from agents using JSON schemas. Instead of free-form text, agents return data that matches a predefined schema, enabling type-safe processing and validation.
@@ -112,12 +112,12 @@ await foreach (var chunk in agent.RunStreamingAsync(
 ## Project Structure
 
 ```
-04-structured-output/
+03-structured-output/
 ├── Program.cs              # 3 structured output methods
 ├── Models/
 │   └── CustomsClearanceAssessment.cs  # Response schema definition
 ├── appsettings.json        # Azure OpenAI config
-└── 04-structured-output.csproj
+└── 03-structured-output.csproj
 ```
 
 ---
@@ -273,7 +273,7 @@ AgentResponse<ShipmentBatch> response =
 ## Running the Project
 
 ```bash
-cd 04-structured-output
+cd 03-structured-output
 dotnet run
 ```
 
@@ -283,9 +283,9 @@ Output shows three methods of getting structured responses, each producing the s
 
 ## Next Steps
 
-- 👉 **Next Project:** [05-reasoning-effort](../05-reasoning-effort/README.md) - Control reasoning depth
-- 🔗 **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools that return structured data
-- 🔗 **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Structured output in sessions
+- 👉 **Next Project:** [04-reasoning-effort](../04-reasoning-effort/README.md) - Control reasoning depth
+- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Tools that return structured data
+- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Structured output in sessions
 
 ---
 
