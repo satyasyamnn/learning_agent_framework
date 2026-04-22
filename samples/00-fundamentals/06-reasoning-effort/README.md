@@ -1,46 +1,46 @@
-# 🧠 Fundamentals 05: Reasoning Effort Controls
+﻿#  Fundamentals 06: Reasoning Effort Controls
 
-## Overview
+## Quick Context
 This project demonstrates how to tune **reasoning effort levels** in agent responses. Different problems require different levels of thinking: simple questions need minimal reasoning, while complex analysis requires extended thought.
 
-**Key Learning:** Control reasoning depth to balance cost, latency, and quality.
+**Point to Remember:** Control reasoning depth to balance cost, latency, and quality.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Use baseline (default) reasoning for standard tasks
-- ✅ Set minimal reasoning for fast, simple responses
-- ✅ Enable high reasoning for complex analysis
-- ✅ Monitor reasoning tokens and cost implications
-- ✅ Choose appropriate reasoning levels for your use case
+-  Use baseline (default) reasoning for standard tasks
+-  Set minimal reasoning for fast, simple responses
+-  Enable high reasoning for complex analysis
+-  Monitor reasoning tokens and cost implications
+-  Choose appropriate reasoning levels for your use case
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### Reasoning Levels in OpenAI Models
 
 ```
-┌─────────────────────────────────────────────┐
-│      ChatReasoningEffortLevel Options        │
-├─────────────────────────────────────────────┤
-│ Baseline (Default)                          │
-│ - Standard model reasoning behavior         │
-│ - Balanced cost/quality                     │
-│ - Best for general tasks                    │
-│                                             │
-│ Minimal                                     │
-│ - Fastest responses                         │
-│ - Lowest cost                               │
-│ - For simple Q&A                            │
-│                                             │
-│ High                                        │
-│ - Extended thinking enabled                 │
-│ - Best for complex reasoning                │
-│ - Highest cost & latency                    │
-│ - More reasoning tokens used                │
-└─────────────────────────────────────────────┘
+
+      ChatReasoningEffortLevel Options        
+
+ Baseline (Default)                          
+ - Standard model reasoning behavior         
+ - Balanced cost/quality                     
+ - Best for general tasks                    
+                                             
+ Minimal                                     
+ - Fastest responses                         
+ - Lowest cost                               
+ - For simple Q&A                            
+                                             
+ High                                        
+ - Extended thinking enabled                 
+ - Best for complex reasoning                
+ - Highest cost & latency                    
+ - More reasoning tokens used                
+
 ```
 
 ---
@@ -64,7 +64,7 @@ response.WriteTokenUsageToConsole("Baseline");
 
 // Output:
 // Response: Focus on electronics certifications and origin verification...
-// ✓ Baseline | Input: 45 tokens | Output: 28 tokens | Total: 73 tokens
+//  Baseline | Input: 45 tokens | Output: 28 tokens | Total: 73 tokens
 ```
 
 **When to use:** Default choice for most tasks.
@@ -93,9 +93,9 @@ AgentResponse response = await agent.RunAsync(customsQuestion);
 response.WriteTokenUsageToConsole("Minimal");
 
 // Output:
-// ✓ Minimal | Input: 45 tokens | Output: 22 tokens | Total: 67 tokens
+//  Minimal | Input: 45 tokens | Output: 22 tokens | Total: 67 tokens
 //
-// ✅ Faster response, fewer tokens, simpler reasoning
+//  Faster response, fewer tokens, simpler reasoning
 ```
 
 **When to use:** 
@@ -130,9 +130,9 @@ Console.WriteLine($"Reasoning Summary: {reasoning?.ReasoningSummary}");
 response.WriteTokenUsageToConsole("High Reasoning");
 
 // Output:
-// ✓ High Reasoning | Input: 45 tokens | Output: 187 tokens | Total: 232 tokens
+//  High Reasoning | Input: 45 tokens | Output: 187 tokens | Total: 232 tokens
 //
-// ⚠️ More tokens, longer latency, but deeper analysis
+//  More tokens, longer latency, but deeper analysis
 ```
 
 **When to use:**
@@ -143,18 +143,18 @@ response.WriteTokenUsageToConsole("High Reasoning");
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-04-reasoning-effort/
-├── Program.cs              # 3 reasoning level demonstrations
-├── appsettings.json        # Azure OpenAI config
-└── 04-reasoning-effort.csproj
+06-reasoning-effort/
+ Program.cs              # 3 reasoning level demonstrations
+ appsettings.json        # Azure OpenAI config
+ 06-reasoning-effort.csproj
 ```
 
 ---
 
-## Example Output Comparison
+## Output Comparison
 
 ### Input Query:
 ```
@@ -186,7 +186,7 @@ Check import licenses and origin docs. Use trusted broker for fast-track.
 [Extended thinking process...]
 
 Inspection Focus Areas:
-1. Electronics origin verification (Singapore → Germany trade pattern)
+1. Electronics origin verification (Singapore  Germany trade pattern)
 2. Import licensing compliance for EU electronics directives
 3. CITES compliance if sourcing includes natural materials
 4. Dual-use technology screening (unlikely but checked)
@@ -202,12 +202,12 @@ Fast-Track Recommendation:
 
 ---
 
-## Reasoning Effort Comparison
+## Reasoning Level Comparison
 
 | Factor | Minimal | Baseline | High |
 |--------|---------|----------|------|
-| **Speed** | ⚡ Fastest | ⚡⚡ Medium | 🐢 Slowest |
-| **Cost** | 💰 Lowest | 💰💰 Medium | 💰💰💰 Highest |
+| **Speed** |  Fastest |  Medium |  Slowest |
+| **Cost** |  Lowest |  Medium |  Highest |
 | **Output Tokens** | ~22 | ~28 | ~187 |
 | **Depth** | Shallow | Balanced | Deep |
 | **Best For** | Simple Q&A | General tasks | Complex analysis |
@@ -215,7 +215,7 @@ Fast-Track Recommendation:
 
 ---
 
-## Cost Implications
+## Cost View
 
 ```
 Baseline: 73 tokens @ $0.000005/token = ~$0.00037
@@ -230,28 +230,28 @@ For 1000 queries:
 
 ---
 
-## Decision Tree: Which Level to Use?
+## Quick Choice Guide
 
 ```
-                    ┌─ Is it a quick lookup?
-                    │  YES → Minimal ✓
-                    │
-Start Question ─────┤
-                    │
-                    │  NO → Is it a standard task?
-                    │  YES → Baseline ✓
-                    │
-                    └─ Is it complex/high-stakes?
-                       YES → High ✓
+                     Is it a quick lookup?
+                      YES  Minimal 
+                    
+Start Question 
+                    
+                      NO  Is it a standard task?
+                      YES  Baseline 
+                    
+                     Is it complex/high-stakes?
+                       YES  High 
 ```
 
 ---
 
-## Real-World Examples
+## Real Examples
 
 ### Use Minimal:
 ```csharp
-// ✅ Quick reference lookups
+//  Quick reference lookups
 "What is the HS code for electronics?"
 "When is the port open?"
 "Show me the tariff rate for shoes"
@@ -259,7 +259,7 @@ Start Question ─────┤
 
 ### Use Baseline:
 ```csharp
-// ✅ Standard operational tasks
+//  Standard operational tasks
 "Assess this shipment for compliance"
 "What documents are required?"
 "Estimate duty and processing time"
@@ -267,7 +267,7 @@ Start Question ─────┤
 
 ### Use High:
 ```csharp
-// ✅ Complex strategic decisions
+//  Complex strategic decisions
 "Design an optimal customs clearance strategy"
 "Analyze trade patterns to find cost savings"
 "Create a risk mitigation plan for high-value shipments"
@@ -275,7 +275,7 @@ Start Question ─────┤
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -287,7 +287,7 @@ Start Question ─────┤
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -304,10 +304,10 @@ Start Question ─────┤
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 04-reasoning-effort
+cd 06-reasoning-effort
 dotnet run
 ```
 
@@ -315,17 +315,17 @@ Observe the token counts and latency differences across reasoning levels.
 
 ---
 
-## Best Practices
+## Practical Tips
 
-✅ **Start with Baseline:** Default choice for most tasks
-✅ **Profile Before Optimizing:** Measure tokens/latency first
-✅ **Use Minimal for UI:** Keep user-facing latency low
-✅ **Reserve High for Batch:** Run expensive reasoning off-hours
-✅ **Monitor Costs:** High reasoning can add significant expense
+ **Start with Baseline:** Default choice for most tasks
+ **Profile Before Optimizing:** Measure tokens/latency first
+ **Use Minimal for UI:** Keep user-facing latency low
+ **Reserve High for Batch:** Run expensive reasoning off-hours
+ **Monitor Costs:** High reasoning can add significant expense
 
 ---
 
-## Advanced: Adaptive Reasoning
+## Extra: Adaptive Reasoning
 
 ```csharp
 async Task<AgentResponse> RunWithAdaptiveReasoning(string question, AIAgent agent)
@@ -347,9 +347,12 @@ async Task<AgentResponse> RunWithAdaptiveReasoning(string question, AIAgent agen
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor and intercept agent operations
-- 🔗 **Related:** [03-structured-output](../03-structured-output/README.md) - Get reliable structured responses
-- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Multi-turn with reasoning
+-  **Next Project:** [07-middleware-usage](../07-middleware-usage/README.md) - Monitor and intercept agent operations
+-  **Related:** [05-structured-output](../05-structured-output/README.md) - Get reliable structured responses
+-  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Multi-turn with reasoning
+
+
+
 

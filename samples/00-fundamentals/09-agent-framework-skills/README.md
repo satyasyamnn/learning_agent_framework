@@ -1,24 +1,24 @@
-# 🧰 Fundamentals 08: Agent Framework Skills
+﻿#  Fundamentals 09: Agent Framework Skills
 
-## Overview
-This project demonstrates **Agent Framework Skills**—a way to encapsulate domain knowledge, business logic, and reusable workflows. Skills can be defined inline using the fluent API or loaded from files, enabling modular, maintainable agent workflows.
+## Quick Context
+This project demonstrates **Agent Framework Skills**a way to encapsulate domain knowledge, business logic, and reusable workflows. Skills can be defined inline using the fluent API or loaded from files, enabling modular, maintainable agent workflows.
 
-**Key Learning:** Skills organize complex agent behavior into reusable, composable units.
-
----
-
-## What You'll Learn
-
-- ✅ Create inline skills with `AgentInlineSkill`
-- ✅ Add resources (reference materials) to skills
-- ✅ Add scripts (executable functions) to skills
-- ✅ Use skills with agents through `AIContextProviders`
-- ✅ Combine multiple skills for complex workflows
-- ✅ Generate dynamic content in skills
+**Point to Remember:** Skills organize complex agent behavior into reusable, composable units.
 
 ---
 
-## Core Concepts
+## Points to Consider
+
+-  Create inline skills with `AgentInlineSkill`
+-  Add resources (reference materials) to skills
+-  Add scripts (executable functions) to skills
+-  Use skills with agents through `AIContextProviders`
+-  Combine multiple skills for complex workflows
+-  Generate dynamic content in skills
+
+---
+
+## Main Ideas
 
 ### What is a Skill?
 
@@ -142,21 +142,21 @@ AIAgent agent = azureClient
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-07-agent-framework-skills/
-├── Program.cs              # Inline skills demo
-├── Skills/
-│   ├── ClearancePacketSkill.cs  # Defined as fluent skill
-│   └── RoutingDecisionSkill.cs  # Another skill example
-├── appsettings.json        # Azure OpenAI config
-└── 07-agent-framework-skills.csproj
+09-agent-framework-skills/
+ Program.cs              # Inline skills demo
+ Skills/
+    ClearancePacketSkill.cs  # Defined as fluent skill
+    RoutingDecisionSkill.cs  # Another skill example
+ appsettings.json        # Azure OpenAI config
+ 09-agent-framework-skills.csproj
 ```
 
 ---
 
-## Example Interaction
+## Sample Interaction
 
 ### User Query:
 ```
@@ -177,18 +177,18 @@ AIAgent agent = azureClient
 Based on the clearance packet skill:
 
 **Required Documents:**
-✓ Commercial invoice (with USD pricing, not required for formal entry)
-✓ Packing list with weights and carton IDs
-✓ Bill of lading
-✓ Entry summary/customs declaration
-✗ Certificate of origin (not needed for routine imports)
-✗ Import license (not required unless commodity is controlled)
+ Commercial invoice (with USD pricing, not required for formal entry)
+ Packing list with weights and carton IDs
+ Bill of lading
+ Entry summary/customs declaration
+ Certificate of origin (not needed for routine imports)
+ Import license (not required unless commodity is controlled)
 
 **Duty Estimation:**
 - Declared Value: $5,000 USD
 - Duty Rate: 6.0%
 - Estimated Duty: $300.00 USD
-- Formal Entry Recommended: ✅ YES (value ≥ $2,500)
+- Formal Entry Recommended:  YES (value  $2,500)
 
 **Recommended Action:**
 File formal entry with complete packet. You'll likely be processed in the green lane
@@ -197,7 +197,7 @@ if your origin has low-risk status.
 
 ---
 
-## Skill Composition
+## Combining Skills
 
 ### Combining Multiple Skills
 
@@ -222,7 +222,7 @@ The agent automatically selects relevant skills based on user queries.
 
 ---
 
-## Skill Template
+## Skill Starter Template
 
 ```csharp
 public static AgentInlineSkill CreateMySkill()
@@ -256,31 +256,31 @@ public static AgentInlineSkill CreateMySkill()
 
 ---
 
-## Use Cases for Skills
+## Where Skills Help
 
-✅ **Domain Workflows:**
+ **Domain Workflows:**
 - Customs clearance procedures
 - Supply chain optimization
 - Risk assessment frameworks
 
-✅ **Reference Materials:**
+ **Reference Materials:**
 - Tariff schedules
 - Policy documents
 - Compliance checklists
 
-✅ **Calculations:**
+ **Calculations:**
 - Duty estimation
 - Cost calculations
 - Performance metrics
 
-✅ **Decision Logic:**
+ **Decision Logic:**
 - Green/amber/red lane routing
 - Risk scoring
 - Approval workflows
 
 ---
 
-## Skills vs. Tools vs. Middleware
+## Skills vs Tools vs Middleware
 
 | Feature | Skills | Tools | Middleware |
 |---------|--------|-------|------------|
@@ -292,25 +292,25 @@ public static AgentInlineSkill CreateMySkill()
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-07-agent-framework-skills/
-├── Program.cs              # Main entry
-├── Skills/
-│   ├── ClearancePacketSkill.cs
-│   ├── RiskAssessmentSkill.cs
-│   └── SkillFactory.cs
-├── Models/
-│   ├── ShipmentData.cs
-│   └── ClearancePacket.cs
-├── appsettings.json
-└── 07-agent-framework-skills.csproj
+09-agent-framework-skills/
+ Program.cs              # Main entry
+ Skills/
+    ClearancePacketSkill.cs
+    RiskAssessmentSkill.cs
+    SkillFactory.cs
+ Models/
+    ShipmentData.cs
+    ClearancePacket.cs
+ appsettings.json
+ 09-agent-framework-skills.csproj
 ```
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -323,7 +323,7 @@ public static AgentInlineSkill CreateMySkill()
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -337,10 +337,10 @@ public static AgentInlineSkill CreateMySkill()
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 07-agent-framework-skills
+cd 09-agent-framework-skills
 dotnet run
 ```
 
@@ -348,7 +348,7 @@ Observe how the agent uses skills to answer complex operational questions.
 
 ---
 
-## Advanced: Skills with File-Based Resources
+## Extra: File-Based Skill Resources
 
 ```csharp
 var policySkill = new AgentInlineSkill(
@@ -367,19 +367,22 @@ var policySkill = new AgentInlineSkill(
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [08-csharp-file-script-runner](../08-csharp-file-script-runner/README.md) - File-based skills with C# scripts
-- 🔗 **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools vs skills
-- 🔗 **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Skills + middleware
+-  **Next Project:** [10-csharp-file-script-runner](../10-csharp-file-script-runner/README.md) - File-based skills with C# scripts
+-  **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools vs skills
+-  **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Skills + middleware
 
 ---
 
-## Best Practices
+## Practical Tips
 
-✅ **Keep skills focused:** One domain concept per skill
-✅ **Make instructions clear:** Agent needs to understand when to use skill
-✅ **Use resources for reference:** Keep static data accessible
-✅ **Keep scripts simple:** Complex logic belongs in tools
-✅ **Document thoroughly:** Future maintainers will thank you
+ **Keep skills focused:** One domain concept per skill
+ **Make instructions clear:** Agent needs to understand when to use skill
+ **Use resources for reference:** Keep static data accessible
+ **Keep scripts simple:** Complex logic belongs in tools
+ **Document thoroughly:** Future maintainers will thank you
+
+
+
 

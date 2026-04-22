@@ -1,32 +1,35 @@
 <Solution>
   <Folder Name="/samples/" />
   <Folder Name="/samples/00-fundamentals/" />
-  <Folder Name="/samples/00-fundamentals/00-simple-agent/">
-    <Project Path="samples/00-fundamentals/00-simple-agent/00-simple-agent/00-simple-agent.csproj" />
+  <Folder Name="/samples/00-fundamentals/01-simple-agent/">
+    <Project Path="samples/00-fundamentals/01-simple-agent/01-simple-agent/01-simple-agent.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/01-anti-pattern-without-session/">
-    <Project Path="samples/00-fundamentals/01-anti-pattern-without-session/01-anti-pattern-without-session/01-anti-pattern-without-session.csproj" />
+  <Folder Name="/samples/00-fundamentals/02-simple-agent-openai/">
+    <Project Path="samples/00-fundamentals/02-simple-agent-openai/02-simple-agent-openai/02-simple-agent-openai.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/02-proper-session-multiturn/">
-    <Project Path="samples/00-fundamentals/02-proper-session-multiturn/02-proper-session-multiturn/02-proper-session-multiturn.csproj" />
+  <Folder Name="/samples/00-fundamentals/03-anti-pattern-without-session/">
+    <Project Path="samples/00-fundamentals/03-anti-pattern-without-session/03-anti-pattern-without-session/03-anti-pattern-without-session.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/03-structured-output/">
-    <Project Path="samples/00-fundamentals/03-structured-output/03-structured-output/03-structured-output.csproj" />
+  <Folder Name="/samples/00-fundamentals/04-proper-session-multiturn/">
+    <Project Path="samples/00-fundamentals/04-proper-session-multiturn/04-proper-session-multiturn/04-proper-session-multiturn.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/04-reasoning-effort/">
-    <Project Path="samples/00-fundamentals/04-reasoning-effort/04-reasoning-effort/04-reasoning-effort.csproj" />
+  <Folder Name="/samples/00-fundamentals/05-structured-output/">
+    <Project Path="samples/00-fundamentals/05-structured-output/05-structured-output/05-structured-output.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/05-middleware-usage/">
-    <Project Path="samples/00-fundamentals/05-middleware-usage/05-middleware-usage/05-middleware-usage.csproj" />
+  <Folder Name="/samples/00-fundamentals/06-reasoning-effort/">
+    <Project Path="samples/00-fundamentals/06-reasoning-effort/06-reasoning-effort/06-reasoning-effort.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/06-agent-with-tools/">
-    <Project Path="samples/00-fundamentals/06-agent-with-tools/06-agent-with-tools/06-agent-with-tools.csproj" />
+  <Folder Name="/samples/00-fundamentals/07-middleware-usage/">
+    <Project Path="samples/00-fundamentals/07-middleware-usage/07-middleware-usage/07-middleware-usage.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/07-agent-framework-skills/">
-    <Project Path="samples/00-fundamentals/07-agent-framework-skills/07-agent-framework-skills/07-agent-framework-skills.csproj" />
+  <Folder Name="/samples/00-fundamentals/08-agent-with-tools/">
+    <Project Path="samples/00-fundamentals/08-agent-with-tools/08-agent-with-tools/08-agent-with-tools.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/08-csharp-file-script-runner/">
-    <Project Path="samples/00-fundamentals/08-csharp-file-script-runner/08-csharp-file-script-runner/08-csharp-file-script-runner.csproj" />
+  <Folder Name="/samples/00-fundamentals/09-agent-framework-skills/">
+    <Project Path="samples/00-fundamentals/09-agent-framework-skills/09-agent-framework-skills/09-agent-framework-skills.csproj" />
+  </Folder>
+  <Folder Name="/samples/00-fundamentals/10-csharp-file-script-runner/">
+    <Project Path="samples/00-fundamentals/10-csharp-file-script-runner/10-csharp-file-script-runner/10-csharp-file-script-runner.csproj" />
   </Folder>
   <Folder Name="/samples/01-RAG/" />
   <Folder Name="/samples/01-RAG/01-customs-rag-embeddings/">

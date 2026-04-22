@@ -1,52 +1,52 @@
-# 🛡️ Fundamentals 06: Middleware Usage
+﻿#  Fundamentals 07: Middleware Usage
 
-## Overview
-This project demonstrates how to intercept and modify agent behavior using **middleware**. Middleware lets you log operations, validate inputs, modify responses, enforce policies, and more—all without changing core agent logic.
+## Quick Context
+This project demonstrates how to intercept and modify agent behavior using **middleware**. Middleware lets you log operations, validate inputs, modify responses, enforce policies, and moreall without changing core agent logic.
 
-**Key Learning:** Middleware enables cross-cutting concerns like logging, security, and filtering.
-
----
-
-## What You'll Learn
-
-- ✅ Understand middleware pipeline architecture
-- ✅ Implement chat client middleware
-- ✅ Implement function calling middleware
-- ✅ Stack multiple middleware layers
-- ✅ Use middleware for logging and monitoring
-- ✅ Validate responses before returning to user
+**Point to Remember:** Middleware enables cross-cutting concerns like logging, security, and filtering.
 
 ---
 
-## Core Concepts
+## Points to Consider
+
+-  Understand middleware pipeline architecture
+-  Implement chat client middleware
+-  Implement function calling middleware
+-  Stack multiple middleware layers
+-  Use middleware for logging and monitoring
+-  Validate responses before returning to user
+
+---
+
+## Main Ideas
 
 ### Middleware Architecture
 
 ```
 User Input
-    ↓
-┌───────────────────────────────────────────┐
-│       ChatClient Middleware Layer         │
-│  (Log request, validate prompt, etc.)     │
-└──────────────┬──────────────────────────┘
-               ↓
-┌───────────────────────────────────────────┐
-│       Agent Execution Layer               │
-│  (Run instructions, set up context)       │
-└──────────────┬──────────────────────────┘
-               ↓
-┌───────────────────────────────────────────┐
-│    Function Calling Middleware Layer      │
-│  (Log tool calls, approve sensitive ops)  │
-└──────────────┬──────────────────────────┘
-               ↓
-┌───────────────────────────────────────────┐
-│       AI Model Request Layer              │
-│  (Call Azure OpenAI API)                  │
-└──────────────┬──────────────────────────┘
-               ↓
+    
+
+       ChatClient Middleware Layer         
+  (Log request, validate prompt, etc.)     
+
+               
+
+       Agent Execution Layer               
+  (Run instructions, set up context)       
+
+               
+
+    Function Calling Middleware Layer      
+  (Log tool calls, approve sensitive ops)  
+
+               
+
+       AI Model Request Layer              
+  (Call Azure OpenAI API)                  
+
+               
         Agent Response
-             ↓
+             
       Return to User
 ```
 
@@ -108,7 +108,7 @@ static ChatResponse ToolCallingMiddleware(
             // Example: Block sensitive operations
             if (toolCall.ToolName == "FlagShipmentForDetention")
             {
-                Console.WriteLine("  ⚠️  APPROVAL REQUIRED - Awaiting officer confirmation...");
+                Console.WriteLine("    APPROVAL REQUIRED - Awaiting officer confirmation...");
                 // Could prompt user, check approvals, etc.
             }
         }
@@ -134,30 +134,30 @@ var agent = chatClient
         instructions: "You are a customs clearance assistant...",
         tools: customsTools);
 
-// Request flow: Auth → Logging → Validation → ToolCalling → Agent
+// Request flow: Auth  Logging  Validation  ToolCalling  Agent
 ```
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-05-middleware-usage/
-├── Program.cs              # Main with 3 middleware demonstrations
-├── Middleware/
-│   ├── ChatClientMiddleware.cs     # Log requests/responses
-│   ├── ToolCallingMiddleware.cs    # Monitor tool invocations
-│   └── ValidationMiddleware.cs     # Validate inputs/outputs
-├── Tools/
-│   ├── CustomsQueryTools.cs        # Customs domain tools
-│   └── ApprovalRequiredAIFunction.cs
-├── appsettings.json        # Azure OpenAI config
-└── 05-middleware-usage.csproj
+07-middleware-usage/
+ Program.cs              # Main with 3 middleware demonstrations
+ Middleware/
+    ChatClientMiddleware.cs     # Log requests/responses
+    ToolCallingMiddleware.cs    # Monitor tool invocations
+    ValidationMiddleware.cs     # Validate inputs/outputs
+ Tools/
+    CustomsQueryTools.cs        # Customs domain tools
+    ApprovalRequiredAIFunction.cs
+ appsettings.json        # Azure OpenAI config
+ 07-middleware-usage.csproj
 ```
 
 ---
 
-## Example Usage
+## In Practice
 
 ### Setup with Middleware
 
@@ -179,24 +179,24 @@ var agent = chatClient
 
 ```
 User Input: "Flag shipment CSH-3004 for detention"
-    ↓
+    
 [Middleware] Request: Flag shipment CSH-3004 for detention
-    ↓
+    
 [Tool Call] CheckCompliance
   Arguments: {"origin": "Iran"}
-  ⚠️  APPROVAL REQUIRED - Awaiting officer confirmation...
-    ↓
+    APPROVAL REQUIRED - Awaiting officer confirmation...
+    
 Agent generates response with tool results
-    ↓
+    
 [Middleware] Response: Shipment flagged successfully...
 [Middleware] Latency: 1243ms
-    ↓
+    
 Response returned to user
 ```
 
 ---
 
-## Middleware Use Cases
+## Where Middleware Helps
 
 ### 1. Logging & Monitoring
 ```csharp
@@ -286,7 +286,7 @@ async Task<ChatResponse> RateLimitMiddleware(
 
 ---
 
-## Middleware Composition Pattern
+## Middleware Stack Pattern
 
 ```csharp
 public static class MiddlewareExtensions
@@ -321,7 +321,7 @@ var agent = chatClient
 
 ---
 
-## Example Output
+## Sample Output
 
 ```
 =============================================================
@@ -341,31 +341,31 @@ Agent: Shipment CSH-3004 is cleared for entry.
 
 ---
 
-## Middleware Order Matters
+## Order Matters
 
 ```
 Middleware Stack Order:
 
-Layer 1 (Outermost):  Authentication    ← Runs first
+Layer 1 (Outermost):  Authentication     Runs first
 Layer 2:              Rate Limiting     
 Layer 3:              Logging           
 Layer 4:              Validation        
-Layer 5 (Innermost):  Tool Monitoring   ← Runs last
+Layer 5 (Innermost):  Tool Monitoring    Runs last
 
-Request travels: 1 → 2 → 3 → 4 → 5 → Agent → 5 → 4 → 3 → 2 → 1
+Request travels: 1  2  3  4  5  Agent  5  4  3  2  1
 ```
 
 ---
 
-## Best Practices
+## Practical Tips
 
-✅ **Do:**
+ **Do:**
 - **Keep middleware thin:** Each middleware does one thing
-- **Order logically:** Security → Monitoring → Validation → Domain
+- **Order logically:** Security  Monitoring  Validation  Domain
 - **Handle errors:** Middleware should catch and handle exceptions
 - **Log operations:** Help with debugging and auditing
 
-❌ **Don't:**
+ **Don't:**
 - **Make middleware slow:** Avoid heavy processing
 - **Modify requests unexpectedly:** Be transparent about changes
 - **Nest middleware deeply:** Stack limits readability
@@ -373,7 +373,7 @@ Request travels: 1 → 2 → 3 → 4 → 5 → Agent → 5 → 4 → 3 → 2 →
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -385,7 +385,7 @@ Request travels: 1 → 2 → 3 → 4 → 5 → Agent → 5 → 4 → 3 → 2 →
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -399,10 +399,10 @@ Request travels: 1 → 2 → 3 → 4 → 5 → Agent → 5 → 4 → 3 → 2 →
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 05-middleware-usage
+cd 07-middleware-usage
 dotnet run
 ```
 
@@ -410,32 +410,35 @@ Observe middleware logging for each tool call and response.
 
 ---
 
-## Monitoring Dashboard Example
+## Dashboard Example
 
 With middleware, you can build dashboards:
 
 ```
 Request Distribution:
-├─ Compliance Checks:  ████████░░ 80%
-├─ Status Lookups:     █████░░░░░ 50%
-└─ Document Reviews:   ███░░░░░░░ 30%
+ Compliance Checks:   80%
+ Status Lookups:      50%
+ Document Reviews:    30%
 
 Performance Metrics:
-├─ Avg Latency:        1.2s
-├─ P99 Latency:        3.1s
-└─ Error Rate:         0.3%
+ Avg Latency:        1.2s
+ P99 Latency:        3.1s
+ Error Rate:         0.3%
 
 Tool Usage:
-├─ Most Called:        GetClearanceStatus
-├─ Slowest:            ReviewDocuments
-└─ Most Errors:        CheckCompliance
+ Most Called:        GetClearanceStatus
+ Slowest:            ReviewDocuments
+ Most Errors:        CheckCompliance
 ```
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [07-agent-framework-skills](../07-agent-framework-skills/README.md) - Agent Skills for complex workflows
-- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Tools that middleware monitors
-- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Sessions with middleware
+-  **Next Project:** [09-agent-framework-skills](../09-agent-framework-skills/README.md) - Agent Skills for complex workflows
+-  **Related:** [08-agent-with-tools](../08-agent-with-tools/README.md) - Tools that middleware monitors
+-  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Sessions with middleware
+
+
+
 

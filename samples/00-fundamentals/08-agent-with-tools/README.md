@@ -1,23 +1,23 @@
-# 🔧 Fundamentals 07: Agent with Tools
+﻿#  Fundamentals 08: Agent with Tools
 
-## Overview
+## Quick Context
 This project demonstrates how to extend agents with **function calling** capabilities. The agent can call tools to retrieve real-time data, perform calculations, or execute domain-specific logic before responding.
 
-**Key Learning:** Tools enable agents to access external data and services dynamically.
+**Point to Remember:** Tools enable agents to access external data and services dynamically.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Register tools with an agent using `AIFunctionFactory`
-- ✅ Use reflection to expose public methods as tools
-- ✅ Enable agent function calling (tool invocation)
-- ✅ Combine tools from multiple classes
-- ✅ Handle tool responses and integrate them into answers
+-  Register tools with an agent using `AIFunctionFactory`
+-  Use reflection to expose public methods as tools
+-  Enable agent function calling (tool invocation)
+-  Combine tools from multiple classes
+-  Handle tool responses and integrate them into answers
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### 1. Define Tool Methods
 
@@ -87,22 +87,22 @@ while (true)
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-06-agent-with-tools/
-├── Program.cs              # Main entry point with session loop
-├── Tools/
-│   ├── CustomsQueryTools.cs    # Customs domain tools (port status, duty calc, etc.)
-│   ├── SimpleTools.cs          # General utilities
-│   └── ApprovalRequiredAIFunction.cs  # Special tool with approval gate
-├── appsettings.json        # Azure OpenAI config
-└── 06-agent-with-tools.csproj
+08-agent-with-tools/
+ Program.cs              # Main entry point with session loop
+ Tools/
+    CustomsQueryTools.cs    # Customs domain tools (port status, duty calc, etc.)
+    SimpleTools.cs          # General utilities
+    ApprovalRequiredAIFunction.cs  # Special tool with approval gate
+ appsettings.json        # Azure OpenAI config
+ 08-agent-with-tools.csproj
 ```
 
 ---
 
-## Example Interaction
+## Sample Interaction
 
 ```
 >>> Suggested prompts:
@@ -120,15 +120,15 @@ Agent: Rotterdam currently shows a low disruption risk with 2% congestion levels
 
 ---
 
-## Tool Best Practices
+## Tool Tips
 
-### Do's ✅
+### Do's 
 - Use descriptive `[Description]` attributes
 - Keep tool parameters simple (strings, numbers, dates)
 - Handle errors gracefully within tools
 - Return string results for debugging
 
-### Don'ts ❌
+### Don'ts 
 - Don't return complex nested objects
 - Don't make tools extremely slow (>5 seconds)
 - Don't expose sensitive operations without approval gates
@@ -136,7 +136,7 @@ Agent: Rotterdam currently shows a low disruption risk with 2% congestion levels
 
 ---
 
-## Special Tool: Approval Gate
+## Special Case: Approval Gate
 
 Some operations require human approval:
 
@@ -150,7 +150,7 @@ This wraps a tool to require user confirmation before execution.
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -161,22 +161,22 @@ This wraps a tool to require user confirmation before execution.
 
 ---
 
-## When to Use Tools
+## When Tools Help
 
-✅ **Use tools when:**
+ **Use tools when:**
 - Agent needs real-time data (prices, inventory, status)
 - Complex calculations required
 - Integration with external systems
 - Domain-specific operations
 
-❌ **Don't use tools when:**
+ **Don't use tools when:**
 - Simple Q&A without data lookup
 - All answers available in context
 - Tool latency would hurt UX
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -190,10 +190,10 @@ This wraps a tool to require user confirmation before execution.
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 06-agent-with-tools
+cd 08-agent-with-tools
 dotnet run
 ```
 
@@ -201,9 +201,12 @@ Interact with the agent by typing prompts. The agent will automatically call too
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [01-anti-pattern-without-session](../01-anti-pattern-without-session/README.md) - See why sessions matter
-- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Tools + Sessions together
-- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor tool calls with middleware
+-  **Next Project:** [03-anti-pattern-without-session](../03-anti-pattern-without-session/README.md) - See why sessions matter
+-  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Tools + Sessions together
+-  **Related:** [07-middleware-usage](../07-middleware-usage/README.md) - Monitor tool calls with middleware
+
+
+
 

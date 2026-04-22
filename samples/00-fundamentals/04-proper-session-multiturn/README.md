@@ -1,23 +1,23 @@
-# 💾 Fundamentals 03: Proper Multi-Turn with AgentSession
+﻿#  Fundamentals 04: Proper Multi-Turn with AgentSession
 
-## Overview
+## Quick Context
 This project demonstrates the **correct pattern for multi-turn conversations** using `AgentSession`. The agent maintains full conversation history, allowing it to remember context across multiple interactions and provide coherent, context-aware responses.
 
-**Key Learning:** Sessions are essential for stateful, context-aware agent interactions.
+**Point to Remember:** Sessions are essential for stateful, context-aware agent interactions.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Create and manage `AgentSession` for conversation history
-- ✅ Execute multi-turn interactions with full context
-- ✅ Monitor token usage per turn with `WriteTokenUsageToConsole()`
-- ✅ Serialize and persist sessions for recovery
-- ✅ Stream responses while maintaining session state
+-  Create and manage `AgentSession` for conversation history
+-  Execute multi-turn interactions with full context
+-  Monitor token usage per turn with `WriteTokenUsageToConsole()`
+-  Serialize and persist sessions for recovery
+-  Stream responses while maintaining session state
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### 1. Create a Session
 
@@ -43,7 +43,7 @@ Console.WriteLine($"Agent: {response1.Text}");
 
 // Turn 2: Agent remembers Alice
 AgentResponse response2 = await agent.RunAsync(
-    "What is my name?",  // ✅ Agent will remember!
+    "What is my name?",  //  Agent will remember!
     session);
 Console.WriteLine($"Agent: {response2.Text}");
 
@@ -55,7 +55,7 @@ AgentResponse response3 = await agent.RunAsync(
 // Turn 4: Agent recalls everything
 AgentResponse response4 = await agent.RunAsync(
     "Summarize what you know about my role, ports, and clearance target.",
-    session);  // ✅ Full context available!
+    session);  //  Full context available!
 ```
 
 ---
@@ -66,7 +66,7 @@ AgentResponse response4 = await agent.RunAsync(
 response1.WriteTokenUsageToConsole("Turn 1");
 
 // Output:
-// ✓ Turn 1 | Input: 45 tokens | Output: 62 tokens | Total: 107 tokens
+//  Turn 1 | Input: 45 tokens | Output: 62 tokens | Total: 107 tokens
 ```
 
 Monitor token consumption per turn for cost optimization.
@@ -80,7 +80,7 @@ await agent.RunStreamingAsync(
     .WriteStreamingResponseAndTokenUsageToConsoleAsync("Turn 6 (Streaming)");
 ```
 
-Streaming works with sessions — tokens are still tracked.
+Streaming works with sessions  tokens are still tracked.
 
 ### 5. Session Persistence
 
@@ -89,7 +89,7 @@ Streaming works with sessions — tokens are still tracked.
 var serializedSession = await agent.SerializeSessionAsync(session);
 
 // In a real app: save serializedSession to Redis, SQL database, etc.
-Console.WriteLine("✓ Session serialized successfully");
+Console.WriteLine(" Session serialized successfully");
 
 // Later, restore the session
 var restoredSession = await agent.DeserializeSessionAsync(serializedSession);
@@ -100,20 +100,20 @@ Persist sessions to maintain conversations across app restarts.
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-02-proper-session-multiturn/
-├── Program.cs              # Multi-turn session demo with 6 turns
-├── Shared/
-│   └── TokenUsageConsoleExtensions.cs  # Helper to display token usage
-├── appsettings.json        # Azure OpenAI config
-└── 02-proper-session-multiturn.csproj
+04-proper-session-multiturn/
+ Program.cs              # Multi-turn session demo with 6 turns
+ Shared/
+    TokenUsageConsoleExtensions.cs  # Helper to display token usage
+ appsettings.json        # Azure OpenAI config
+ 04-proper-session-multiturn.csproj
 ```
 
 ---
 
-## Example Output
+## Sample Output
 
 ```
 === Proper Multi-Turn with AgentSession (Supply Chain Context) ===
@@ -122,19 +122,19 @@ Persist sessions to maintain conversations across app restarts.
 > My name is Alice. I lead customs operations for electronics imports through Rotterdam and Singapore.
 Agent: I'm pleased to meet you, Alice...
 
-✓ Turn 1 | Input: 54 tokens | Output: 68 tokens | Total: 122 tokens
+ Turn 1 | Input: 54 tokens | Output: 68 tokens | Total: 122 tokens
 
 >>> Turn 2: User asks agent to recall their name (SUCCESS: Agent remembers!)
 > What is my name?
 Agent: Your name is Alice. You lead customs operations...
 
-✓ Turn 2 | Input: 89 tokens | Output: 42 tokens | Total: 131 tokens
+ Turn 2 | Input: 89 tokens | Output: 42 tokens | Total: 131 tokens
 
 >>> Turn 3: User provides more information
 > Our baseline customs clearance time is 30 hours, and my goal is to get it under 24 hours this quarter.
 Agent: That's an ambitious but achievable goal...
 
-✓ Turn 3 | Input: 125 tokens | Output: 55 tokens | Total: 180 tokens
+ Turn 3 | Input: 125 tokens | Output: 55 tokens | Total: 180 tokens
 
 >>> Turn 4: User asks about previous info (SUCCESS: Agent recalls everything!)
 > Can you summarize what you know about my role, ports, and clearance target?
@@ -143,49 +143,49 @@ Agent: Based on our conversation:
 - You manage electronics imports through Rotterdam and Singapore
 - Your goal is reducing clearance from 30 to under 24 hours...
 
-✓ Turn 4 | Input: 156 tokens | Output: 89 tokens | Total: 245 tokens
+ Turn 4 | Input: 156 tokens | Output: 89 tokens | Total: 245 tokens
 ```
 
 ---
 
-## Session State Flow
+## Session Flow
 
 ```
-┌─────────────────────────────────────────────────────┐
-│           User Starts Conversation                  │
-│               (CreateSessionAsync)                  │
-└──────────────────┬──────────────────────────────────┘
-                   │
-       ┌───────────▼───────────┐
-       │   Session Created     │
-       │ (empty chat history)  │
-       └───────────┬───────────┘
-                   │
-       ┌───────────▼──────────────────────┐
-       │  Turn 1: RunAsync(msg, session)  │
-       │  - Message added to history      │
-       │  - Response generated            │
-       │  - Both stored in session        │
-       └───────────┬──────────────────────┘
-                   │
-       ┌───────────▼──────────────────────┐
-       │  Turn 2: RunAsync(msg, session)  │
-       │  - Full history sent to model ✓  │
-       │  - Agent has context             │
-       │  - New exchange added            │
-       └───────────┬──────────────────────┘
-                   │
-       ┌───────────▼──────────────────────┐
-       │  Turn N: RunAsync(msg, session)  │
-       │  - Complete conversation history │
-       │  - Rich context available        │
-       │  - Session continues...          │
-       └──────────────────────────────────┘
+
+           User Starts Conversation                  
+               (CreateSessionAsync)                  
+
+                   
+       
+          Session Created     
+        (empty chat history)  
+       
+                   
+       
+         Turn 1: RunAsync(msg, session)  
+         - Message added to history      
+         - Response generated            
+         - Both stored in session        
+       
+                   
+       
+         Turn 2: RunAsync(msg, session)  
+         - Full history sent to model   
+         - Agent has context             
+         - New exchange added            
+       
+                   
+       
+         Turn N: RunAsync(msg, session)  
+         - Complete conversation history 
+         - Rich context available        
+         - Session continues...          
+       
 ```
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -198,16 +198,16 @@ Agent: Based on our conversation:
 
 ---
 
-## Best Practices
+## Practical Tips
 
-### Do's ✅
+### Do's 
 - **Always use sessions for multi-turn conversations**
 - Serialize sessions for recovery after crashes
 - Monitor token usage to manage costs
 - Clear sessions when conversation ends
 - Store sessions in Redis/database for scalability
 
-### Don'ts ❌
+### Don'ts 
 - Don't create new agents for each turn
 - Don't mix multiple users' messages in one session
 - Don't forget to manage session lifecycle
@@ -215,7 +215,7 @@ Agent: Based on our conversation:
 
 ---
 
-## Session Lifecycle
+## Session Lifecycle at a Glance
 
 ```csharp
 // 1. Create session
@@ -241,7 +241,7 @@ var restored = await agent.DeserializeSessionAsync(serialized);
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -255,10 +255,10 @@ var restored = await agent.DeserializeSessionAsync(serialized);
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 02-proper-session-multiturn
+cd 04-proper-session-multiturn
 dotnet run
 ```
 
@@ -266,7 +266,7 @@ You'll see 6 example turns demonstrating full context retention and token tracki
 
 ---
 
-## Common Patterns
+## Useful Patterns
 
 ### Pattern 1: Chat Loop
 ```csharp
@@ -293,21 +293,24 @@ while ((DateTime.UtcNow - lastActivity).TotalMinutes < 30)
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [03-structured-output](../03-structured-output/README.md) - Get typed responses from agents
-- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Combine sessions with tools
-- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor session interactions
+-  **Next Project:** [05-structured-output](../05-structured-output/README.md) - Get typed responses from agents
+-  **Related:** [08-agent-with-tools](../08-agent-with-tools/README.md) - Combine sessions with tools
+-  **Related:** [07-middleware-usage](../07-middleware-usage/README.md) - Monitor session interactions
 
 ---
 
-## Comparison with Anti-Pattern
+## Quick Comparison
 
 | Feature | Without Session (02) | With Session (03) |
 |---------|---------------------|-------------------|
-| Context Retention | ❌ None | ✅ Full history |
-| Multi-Turn | ❌ Fails | ✅ Works perfectly |
-| User Experience | ❌ Poor | ✅ Natural |
-| Token Tracking | ✅ Simple | ✅ Per-turn tracking |
-| Persistence | ❌ Lost on crash | ✅ Can serialize |
+| Context Retention |  None |  Full history |
+| Multi-Turn |  Fails |  Works perfectly |
+| User Experience |  Poor |  Natural |
+| Token Tracking |  Simple |  Per-turn tracking |
+| Persistence |  Lost on crash |  Can serialize |
+
+
+
 

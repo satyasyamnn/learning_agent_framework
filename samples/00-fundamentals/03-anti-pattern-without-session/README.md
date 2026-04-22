@@ -1,22 +1,22 @@
-# ⚠️ Fundamentals 02: Anti-Pattern - Multi-Turn Without Session
+﻿#  Fundamentals 03: Anti-Pattern - Multi-Turn Without Session
 
-## Overview
-This project is a **deliberate anti-pattern** showing what happens when you try to maintain multi-turn conversations **without using sessions**. Each call to `RunAsync()` is independent — the agent has no memory of previous interactions.
+## Quick Context
+This project is a **deliberate anti-pattern** showing what happens when you try to maintain multi-turn conversations **without using sessions**. Each call to `RunAsync()` is independent  the agent has no memory of previous interactions.
 
-**Key Learning:** Why `AgentSession` is essential for context-aware conversations.
-
----
-
-## What You'll Learn
-
-- ⚠️ Understand the problem: stateless agent interactions
-- ⚠️ See why agents lose context without sessions
-- ✅ Recognize the pattern to avoid in production
-- ✅ Contrast with proper session-based approach
+**Point to Remember:** Why `AgentSession` is essential for context-aware conversations.
 
 ---
 
-## The Problem
+## Points to Consider
+
+-  Understand the problem: stateless agent interactions
+-  See why agents lose context without sessions
+-  Recognize the pattern to avoid in production
+-  Contrast with proper session-based approach
+
+---
+
+## What Goes Wrong
 
 ### Turn 1: User introduces themselves
 ```csharp
@@ -27,7 +27,7 @@ AgentResponse response1 = await agent.RunAsync("My name is Alice. I manage custo
 ### Turn 2: User asks agent to recall their name
 ```csharp
 AgentResponse response2 = await agent.RunAsync("What is my name?");
-// ❌ Agent: "I don't have that information in our conversation..."
+//  Agent: "I don't have that information in our conversation..."
 ```
 
 ### Why?
@@ -35,32 +35,32 @@ Each `RunAsync()` call creates a **fresh conversation** with just the agent's in
 
 ---
 
-## The Anti-Pattern Flow
+## How This Fails
 
 ```
-Turn 1: User Message → New ChatCompletion Request → Fresh Context
-         ↓
+Turn 1: User Message  New ChatCompletion Request  Fresh Context
+         
          Agent Response (instruction-only, no history)
-         ↓
+         
          Response discarded!
 
-Turn 2: User Message → New ChatCompletion Request → Fresh Context AGAIN
-         ↓
+Turn 2: User Message  New ChatCompletion Request  Fresh Context AGAIN
+         
          Agent Response (still no awareness of Turn 1)
-         ↓
+         
          Response discarded again!
 
-Turn 3: User Message → Same pattern repeats...
+Turn 3: User Message  Same pattern repeats...
 ```
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### What NOT to Do
 
 ```csharp
-// ❌ ANTI-PATTERN: No session management
+//  ANTI-PATTERN: No session management
 AIAgent agent = chatClient.AsAIAgent(
     instructions: "Remember important details...",
     name: "ContextAgent");
@@ -74,22 +74,22 @@ The instructions say "Remember important details" but there's **no mechanism to 
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-01-anti-pattern-without-session/
-├── Program.cs              # Anti-pattern demo (4 turns, agent loses context)
-├── appsettings.json        # Azure OpenAI config
-└── 01-anti-pattern-without-session.csproj
+03-anti-pattern-without-session/
+ Program.cs              # Anti-pattern demo (4 turns, agent loses context)
+ appsettings.json        # Azure OpenAI config
+ 03-anti-pattern-without-session.csproj
 ```
 
 ---
 
-## Example Output
+## Sample Output
 
 ```
 === Anti-Pattern: Multi-Turn without Session ===
-⚠️  WARNING: This example demonstrates an ANTI-PATTERN!
+  WARNING: This example demonstrates an ANTI-PATTERN!
 
 >>> Turn 1: User shares their logistics profile
 > My name is Alice. I manage customs clearance...
@@ -110,45 +110,45 @@ Agent: I don't have enough context to provide a detailed summary...
 
 ---
 
-## Why This Fails
+## Why It Breaks
 
 1. **No Memory:** Each `RunAsync()` is independent
 2. **No History:** Previous messages aren't sent to the model
-3. **No Context:** Agent can't learn or recall user information
+3. **No Context:** Agent can't retain or recall user information
 4. **Poor UX:** Users feel like the agent has amnesia
 
 ---
 
-## The Solution
+## What To Do Instead
 
 Use `AgentSession` to maintain conversation history:
 
 ```csharp
-// ✅ CORRECT: Using AgentSession
+//  CORRECT: Using AgentSession
 AgentSession session = await agent.CreateSessionAsync();
 
 AgentResponse response1 = await agent.RunAsync("My name is Alice...", session);
-AgentResponse response2 = await agent.RunAsync("What's my name?", session);  // ✅ Agent remembers!
-AgentResponse response3 = await agent.RunAsync("And my role?", session);      // ✅ Full context!
+AgentResponse response2 = await agent.RunAsync("What's my name?", session);  //  Agent remembers!
+AgentResponse response3 = await agent.RunAsync("And my role?", session);      //  Full context!
 ```
 
 ---
 
-## When This Anti-Pattern Occurs
+## Where This Shows Up
 
 Watch out for these signs:
-- ❌ Multiple `RunAsync()` calls without a session parameter
-- ❌ Comments like "Remember what I said earlier"
-- ❌ Using `RunAsync()` in a loop without `AgentSession`
-- ❌ Treating agent as if it has memory without sessions
+-  Multiple `RunAsync()` calls without a session parameter
+-  Comments like "Remember what I said earlier"
+-  Using `RunAsync()` in a loop without `AgentSession`
+-  Treating agent as if it has memory without sessions
 
 ---
 
-## Key Takeaways
+## Quick Takeaways
 
-| Aspect | Without Session (❌) | With Session (✅) |
+| Aspect | Without Session () | With Session () |
 |--------|----------------------|-------------------|
-| **Memory** | None — starts fresh each turn | Full conversation history |
+| **Memory** | None  starts fresh each turn | Full conversation history |
 | **Context** | Only instructions + current message | Instructions + all previous turns |
 | **Use Case** | Single questions only | Multi-turn conversations |
 | **User Experience** | Feels like agent has amnesia | Natural, continuous conversation |
@@ -156,7 +156,7 @@ Watch out for these signs:
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -170,10 +170,10 @@ Watch out for these signs:
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 01-anti-pattern-without-session
+cd 03-anti-pattern-without-session
 dotnet run
 ```
 
@@ -181,15 +181,18 @@ Observe how the agent loses context between turns.
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - **See the correct pattern!**
-- 🔗 **Related:** [05-middleware-usage](../05-middleware-usage/README.md) - Monitor session interactions
+-  **Next Project:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - **See the correct pattern!**
+-  **Related:** [07-middleware-usage](../07-middleware-usage/README.md) - Monitor session interactions
 
 ---
 
-## Resources
+## Helpful Links
 
 - [Microsoft Agent Framework Documentation](https://github.com/microsoft/agents)
 - [AgentSession API Reference](../README.original.md)
+
+
+
 

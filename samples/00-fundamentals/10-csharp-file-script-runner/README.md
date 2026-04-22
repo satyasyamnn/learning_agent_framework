@@ -1,24 +1,24 @@
-# 🧾 Fundamentals 09: C# File-Based Skill Script Runner
+﻿#  Fundamentals 10: C# File-Based Skill Script Runner
 
-## Overview
+## Quick Context
 This project demonstrates how to use **file-based skills** (`SKILL.md` files) executed by a **C# script runner** (`.csx`). This enables non-Python environments to implement skills with executable scripts in C#, without requiring Python or external dependencies.
 
-**Key Learning:** Skills can be loaded from files and executed dynamically using C# scripting.
+**Point to Remember:** Skills can be loaded from files and executed dynamically using C# scripting.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Structure and load `SKILL.md` files
-- ✅ Create C# `.csx` script files for skill implementation
-- ✅ Use `AgentSkillsProvider` to load file-based skills
-- ✅ Execute scripts dynamically with Roslyn scripting
-- ✅ Combine file-based and inline skills
-- ✅ Handle script parameters and return values
+-  Structure and load `SKILL.md` files
+-  Create C# `.csx` script files for skill implementation
+-  Use `AgentSkillsProvider` to load file-based skills
+-  Execute scripts dynamically with Roslyn scripting
+-  Combine file-based and inline skills
+-  Handle script parameters and return values
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### 1. File-Based Skill Structure
 
@@ -26,12 +26,12 @@ Skills are organized in a dedicated folder:
 
 ```
 skills/
-├── csharp-duty-and-lane/
-│   ├── SKILL.md              # Skill metadata and documentation
-│   └── estimate-duty.csx     # Executable C# script
-└── risk-assessment/
-    ├── SKILL.md
-    └── assess-risk.csx
+ csharp-duty-and-lane/
+    SKILL.md              # Skill metadata and documentation
+    estimate-duty.csx     # Executable C# script
+ risk-assessment/
+     SKILL.md
+     assess-risk.csx
 ```
 
 ---
@@ -41,16 +41,16 @@ skills/
 ```markdown
 # Customs Duty and Lane Selection Skill
 
-## Description
+## What It Does
 Estimates customs duty and recommends processing lane (green/amber/red).
 
-## Instructions
+## How to Use It
 Use this skill when:
 - Calculating duty from declared value
 - Determining processing lane based on risk
 - Providing duty and compliance guidance
 
-## Scripts
+## Script List
 
 ### estimate-duty
 **Purpose:** Calculate duty from declared value and rate
@@ -131,34 +131,34 @@ string userQuery = "Using the csharp-duty-and-lane skill, " +
 AgentResponse response = await agent.RunAsync(userQuery, session);
 
 // Output:
-// Skill invoked → estimate-duty.csx runs → Result returned
+// Skill invoked  estimate-duty.csx runs  Result returned
 // "Estimated Duty: $5,492.50
 //  Formal Entry Recommended: Yes"
 ```
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-08-csharp-file-script-runner/
-├── Program.cs              # Main entry with skill execution loop
-├── skills/
-│   ├── csharp-duty-and-lane/
-│   │   ├── SKILL.md        # Skill definition and documentation
-│   │   ├── estimate-duty.csx
-│   │   └── recommend-lane.csx
-│   └── risk-assessment/
-│       ├── SKILL.md
-│       └── assess-risk.csx
-├── CSharpFileSkillScriptRunner.cs  # Roslyn-based script executor
-├── appsettings.json        # Azure OpenAI config
-└── 08-csharp-file-script-runner.csproj
+10-csharp-file-script-runner/
+ Program.cs              # Main entry with skill execution loop
+ skills/
+    csharp-duty-and-lane/
+       SKILL.md        # Skill definition and documentation
+       estimate-duty.csx
+       recommend-lane.csx
+    risk-assessment/
+        SKILL.md
+        assess-risk.csx
+ CSharpFileSkillScriptRunner.cs  # Roslyn-based script executor
+ appsettings.json        # Azure OpenAI config
+ 10-csharp-file-script-runner.csproj
 ```
 
 ---
 
-## Example Interaction Flow
+## Sample Flow
 
 ### 1. User Query:
 ```
@@ -190,7 +190,7 @@ Declared Value: $84,500 USD
 Duty Rate: 6.5%
 **Estimated Duty: $5,492.50**
 
-Formal Entry Recommended: ✅ YES (value > $2,500)
+Formal Entry Recommended:  YES (value > $2,500)
 
 Processing Lane: Green Lane
 - Complete documentation required
@@ -200,7 +200,7 @@ Processing Lane: Green Lane
 
 ---
 
-## Script Runner Implementation
+## Script Runner
 
 ```csharp
 public class CSharpFileSkillScriptRunner
@@ -228,23 +228,23 @@ public class CSharpFileSkillScriptRunner
 
 ---
 
-## SKILL.md Template
+## SKILL.md Starter
 
 ```markdown
 # Your Skill Name
 
-## Description
+## What It Does
 Brief description of what this skill does.
 
-## Instructions
+## How to Use It
 When to use this skill and how the agent should apply it.
 
-## Resources
+## Helpful References
 
 ### resource-name
 Reference material for the agent.
 
-## Scripts
+## Script List
 
 ### script-name-1
 **Purpose:** What this script does
@@ -267,7 +267,7 @@ Example:
 
 ---
 
-## C# Script Template (.csx)
+## C# Script Starter (.csx)
 
 ```csharp
 #r "System.Text.Json"
@@ -294,31 +294,31 @@ return result;
 
 ---
 
-## Advantages Over Python Scripts
+## Why C# Scripts Here
 
-✅ **No Python Dependency:**
+ **No Python Dependency:**
 - Skills run on Windows machines without Python
 - One runtime (C#/.NET)
 - No cross-platform complexity
 
-✅ **Type Safety:**
+ **Type Safety:**
 - C# is strongly typed
 - Compile-time checks
 - IDE support
 
-✅ **Performance:**
+ **Performance:**
 - .NET JIT compilation
 - Faster than Python scripts
 - Native performance
 
-✅ **Integration:**
+ **Integration:**
 - Direct access to .NET libraries
 - Easy integration with host app
 - Share types between agent and scripts
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -329,19 +329,19 @@ return result;
 
 ---
 
-## Comparison: Script Runners
+## Script Runner Comparison
 
 | Feature | Python | PowerShell | C# (.csx) |
 |---------|--------|-----------|-----------|
 | **Dependency** | Python runtime | PowerShell | .NET/Roslyn |
-| **Performance** | Slower | Medium | ✅ Fastest |
+| **Performance** | Slower | Medium |  Fastest |
 | **Integration** | Import modules | Cmdlets | Direct .NET |
 | **Platform** | Cross-platform | Windows-focused | .NET Core |
-| **Type Safety** | Weak | Weak | ✅ Strong |
+| **Type Safety** | Weak | Weak |  Strong |
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -355,19 +355,19 @@ return result;
 
 ---
 
-## Directory Structure
+## Folder Structure
 
 Ensure this folder structure exists:
 
 ```
 bin/
-├── Debug/
-│   ├── net10.0/
-│   │   └── skills/           ← Skills directory (copy during build)
-│   │       ├── csharp-duty-and-lane/
-│   │       │   ├── SKILL.md
-│   │       │   └── *.csx
-│   │       └── ...
+ Debug/
+    net10.0/
+       skills/            Skills directory (copy during build)
+           csharp-duty-and-lane/
+              SKILL.md
+              *.csx
+           ...
 ```
 
 **Build Configuration:** Add to `.csproj`:
@@ -379,10 +379,10 @@ bin/
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 08-csharp-file-script-runner
+cd 10-csharp-file-script-runner
 dotnet run
 ```
 
@@ -395,28 +395,28 @@ Try these queries:
 
 ---
 
-## Script Execution Trace
+## Execution Trace
 
 ```
 User Query: "Estimate duty for $84,500 at 6.5%"
-    ↓
+    
 Agent identifies "csharp-duty-and-lane" skill
-    ↓
+    
 AgentSkillsProvider finds skills/csharp-duty-and-lane/SKILL.md
-    ↓
+    
 CSharpFileSkillScriptRunner.RunAsync() invoked
-    ↓
+    
 estimate-duty.csx loaded from disk
-    ↓
+    
 Roslyn compiles script:
   - Creates ScriptGlobals context
   - Injects parameters
   - Compiles to IL
-    ↓
+    
 Script executes:
   - EstimatedDuty = 84500 * 0.065 = 5,492.50
   - FormalEntry = 84500 >= 2500 = true
-    ↓
+    
 Result serialized to JSON:
   {
     "declaredValueUsd": 84500,
@@ -424,27 +424,30 @@ Result serialized to JSON:
     "estimatedDutyUsd": 5492.50,
     "formalEntryRecommended": true
   }
-    ↓
+    
 Agent incorporates result into response
-    ↓
+    
 Response sent to user
 ```
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Back to Fundamentals:** [README.md](#master-readme) - Overview of all projects
-- 🔗 **Related:** [07-agent-framework-skills](../07-agent-framework-skills/README.md) - Inline skills
-- 🔗 **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools vs skills
+-  **Back to Fundamentals:** [README.md](#master-readme) - Overview of all projects
+-  **Related:** [09-agent-framework-skills](../09-agent-framework-skills/README.md) - Inline skills
+-  **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools vs skills
 
 ---
 
-## Best Practices
+## Practical Tips
 
-✅ **Organize skills logically:** Group related scripts
-✅ **Document thoroughly:** SKILL.md is your API
-✅ **Handle errors gracefully:** Scripts should return sensible errors
-✅ **Keep scripts focused:** One calculation per script
-✅ **Version your scripts:** Update SKILL.md when changing behavior
+ **Organize skills logically:** Group related scripts
+ **Document thoroughly:** SKILL.md is your API
+ **Handle errors gracefully:** Scripts should return sensible errors
+ **Keep scripts focused:** One calculation per script
+ **Version your scripts:** Update SKILL.md when changing behavior
+
+
+
 

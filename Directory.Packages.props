@@ -7,6 +7,7 @@
     <!-- Azure packages -->
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.2" />
+    <PackageVersion Include="OpenAI" Version="2.9.1" />
 
     <!-- Microsoft Agent Framework packages -->
     <PackageVersion Include="Microsoft.Agents.AI" Version="1.1.0" />

@@ -1,22 +1,22 @@
-# 🤖 Fundamentals 01: Simple Agent
+﻿#  Fundamentals 01: Simple Agent
 
-## Overview
+## Quick Context
 This project demonstrates the **most basic agent setup** in the Microsoft Agent Framework. It shows how to create an AI agent with simple instructions and handle single-turn interactions without tools or sessions.
 
-**Key Learning:** Minimal code needed to get an agent responding to queries.
+**Point to Remember:** Minimal code needed to get an agent responding to queries.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Create an AI agent from a ChatClient
-- ✅ Add instructions to guide agent behavior
-- ✅ Execute single-turn agent interactions
-- ✅ Handle both streaming and non-streaming responses
+-  Create an AI agent from a ChatClient
+-  Add instructions to guide agent behavior
+-  Execute single-turn agent interactions
+-  Handle both streaming and non-streaming responses
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### 1. Agent Creation
 
@@ -50,18 +50,18 @@ await foreach (var update in agent.RunStreamingAsync("List best practices for re
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-00-simple-agent/
-├── Program.cs           # Main entry point with example queries
-├── appsettings.json     # Azure OpenAI configuration
-└── 00-simple-agent.csproj
+01-simple-agent/
+ Program.cs           # Main entry point with example queries
+ appsettings.json     # Azure OpenAI configuration
+ 01-simple-agent.csproj
 ```
 
 ---
 
-## Example Output
+## Sample Output
 
 ```
 >>> Example 1: Single turn - non-streaming
@@ -74,21 +74,21 @@ Response: Common delays at customs checkpoints include:
 
 ---
 
-## When to Use This Pattern
+## When This Helps
 
-✅ **Use when:**
+ **Use when:**
 - You need a quick one-off query
 - No conversation history needed
 - Simple Q&A interactions
 
-❌ **Don't use when:**
+ **Don't use when:**
 - You need multi-turn conversations
 - User context needs to be remembered
 - Complex workflows with tool calling
 
 ---
 
-## Configuration
+## Setup
 
 Set these in `appsettings.json`:
 ```json
@@ -103,17 +103,17 @@ Set these in `appsettings.json`:
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Add function calling and tools
-- 🔗 **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Multi-turn with session memory
+-  **Next Project:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Add function calling and tools
+-  **Related:** [03-proper-session-multiturn](../03-proper-session-multiturn/README.md) - Multi-turn with session memory
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 00-simple-agent
+cd 01-simple-agent
 dotnet run
 ```
 
@@ -121,7 +121,7 @@ Expected output shows three example queries and their responses from the agent.
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -129,4 +129,7 @@ Expected output shows three example queries and their responses from the agent.
 | `agent.RunAsync()` | Execute single-turn agent interaction |
 | `agent.RunStreamingAsync()` | Execute with streaming response |
 | `AgentResponse` | Contains response text and metadata |
+
+
+
 

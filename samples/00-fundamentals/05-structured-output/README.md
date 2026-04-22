@@ -1,23 +1,23 @@
-# 📋 Fundamentals 04: Structured Output
+﻿#  Fundamentals 05: Structured Output
 
-## Overview
+## Quick Context
 This project demonstrates how to get **strongly-typed, structured responses** from agents using JSON schemas. Instead of free-form text, agents return data that matches a predefined schema, enabling type-safe processing and validation.
 
-**Key Learning:** Structured output enables reliable, machine-readable agent responses.
+**Point to Remember:** Structured output enables reliable, machine-readable agent responses.
 
 ---
 
-## What You'll Learn
+## Points to Consider
 
-- ✅ Define JSON schemas for structured output
-- ✅ Use `ChatResponseFormat.ForJsonSchema<T>()` for response formatting
-- ✅ Deserialize agent responses to strongly-typed objects
-- ✅ Use `RunAsync<T>()` for automatic deserialization
-- ✅ Combine streaming with structured output
+-  Define JSON schemas for structured output
+-  Use `ChatResponseFormat.ForJsonSchema<T>()` for response formatting
+-  Deserialize agent responses to strongly-typed objects
+-  Use `RunAsync<T>()` for automatic deserialization
+-  Combine streaming with structured output
 
 ---
 
-## Core Concepts
+## Main Ideas
 
 ### 1. Define a Response Schema
 
@@ -70,7 +70,7 @@ AIAgent agent = chatClient.AsAIAgent(
     name: "CustomsTypedOutputAgent",
     instructions: "Return only valid JSON matching the requested schema.");
 
-// Automatic deserialization! ✅
+// Automatic deserialization! 
 AgentResponse<CustomsClearanceAssessment> response = 
     await agent.RunAsync<CustomsClearanceAssessment>(
         "Assess shipment CSH-4002 to UAE with HS code 870899, " +
@@ -109,20 +109,20 @@ await foreach (var chunk in agent.RunStreamingAsync(
 
 ---
 
-## Project Structure
+## Folder Layout
 
 ```
-03-structured-output/
-├── Program.cs              # 3 structured output methods
-├── Models/
-│   └── CustomsClearanceAssessment.cs  # Response schema definition
-├── appsettings.json        # Azure OpenAI config
-└── 03-structured-output.csproj
+05-structured-output/
+ Program.cs              # 3 structured output methods
+ Models/
+    CustomsClearanceAssessment.cs  # Response schema definition
+ appsettings.json        # Azure OpenAI config
+ 05-structured-output.csproj
 ```
 
 ---
 
-## Example Response Schema
+## Sample Schema
 
 ```csharp
 public class CustomsClearanceAssessment
@@ -157,7 +157,7 @@ public class CustomsClearanceAssessment
 
 ---
 
-## Example Output
+## Sample Output
 
 ### Input:
 ```
@@ -187,37 +187,37 @@ var assessment = new CustomsClearanceAssessment
 
 ---
 
-## Three Methods Comparison
+## Method Comparison
 
 | Method | Type Safety | Ease | Streaming | Use When |
 |--------|-------------|------|-----------|----------|
-| **ResponseFormat** | Partial | Medium | ✅ Yes | Manual control needed |
-| **RunAsync<T>** | ✅ Full | ✅ Easy | ❌ No | Standard structured output |
-| **Streaming** | Partial | Medium | ✅ Yes | Real-time feedback needed |
+| **ResponseFormat** | Partial | Medium |  Yes | Manual control needed |
+| **RunAsync<T>** |  Full |  Easy |  No | Standard structured output |
+| **Streaming** | Partial | Medium |  Yes | Real-time feedback needed |
 
 ---
 
-## Benefits of Structured Output
+## Why Structured Output Helps
 
-✅ **Type Safety:** Compile-time error detection
-✅ **Validation:** Schema ensures correct format
-✅ **Parsing:** No manual JSON string manipulation
-✅ **Integration:** Direct use in downstream code
-✅ **Reliability:** Guaranteed response format
-✅ **Documentation:** Schema is self-documenting
+ **Type Safety:** Compile-time error detection
+ **Validation:** Schema ensures correct format
+ **Parsing:** No manual JSON string manipulation
+ **Integration:** Direct use in downstream code
+ **Reliability:** Guaranteed response format
+ **Documentation:** Schema is self-documenting
 
 ---
 
-## When to Use Structured Output
+## When This Is Useful
 
-### ✅ Use for:
+###  Use for:
 - **Domain Models:** Assessment results, shipment data
 - **API Responses:** Returns to frontend clients
 - **Data Processing:** Further analysis or storage
 - **Validation:** Ensure response meets requirements
 - **Automation:** Machine-readable decisions
 
-### ❌ Don't use for:
+###  Don't use for:
 - **Explanations:** Free-form reasoning texts
 - **Conversations:** Natural back-and-forth dialogue
 - **Streaming Analysis:** Long narrative responses
@@ -225,7 +225,7 @@ var assessment = new CustomsClearanceAssessment
 
 ---
 
-## Advanced: Complex Nested Structures
+## Extra: Complex Nested Structures
 
 ```csharp
 public class ShipmentBatch
@@ -243,7 +243,7 @@ AgentResponse<ShipmentBatch> response =
 
 ---
 
-## Configuration
+## Setup
 
 ```json
 {
@@ -259,7 +259,7 @@ AgentResponse<ShipmentBatch> response =
 
 ---
 
-## Key APIs
+## Key Methods Used
 
 | API | Purpose |
 |-----|---------|
@@ -270,10 +270,10 @@ AgentResponse<ShipmentBatch> response =
 
 ---
 
-## Running the Project
+## Run It
 
 ```bash
-cd 03-structured-output
+cd 05-structured-output
 dotnet run
 ```
 
@@ -281,25 +281,25 @@ Output shows three methods of getting structured responses, each producing the s
 
 ---
 
-## Next Steps
+## Try Next
 
-- 👉 **Next Project:** [04-reasoning-effort](../04-reasoning-effort/README.md) - Control reasoning depth
-- 🔗 **Related:** [06-agent-with-tools](../06-agent-with-tools/README.md) - Tools that return structured data
-- 🔗 **Related:** [02-proper-session-multiturn](../02-proper-session-multiturn/README.md) - Structured output in sessions
-
----
-
-## Best Practices
-
-✅ **Keep schemas focused:** One response concept per class
-✅ **Use descriptive names:** Properties should be self-documenting
-✅ **Include nullability:** Mark optional fields appropriately
-✅ **Add JsonPropertyName:** For complex field mappings
-✅ **Version schemas:** Plan for evolution
+-  **Next Project:** [06-reasoning-effort](../06-reasoning-effort/README.md) - Control reasoning depth
+-  **Related:** [08-agent-with-tools](../08-agent-with-tools/README.md) - Tools that return structured data
+-  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Structured output in sessions
 
 ---
 
-## Example with Session
+## Practical Tips
+
+ **Keep schemas focused:** One response concept per class
+ **Use descriptive names:** Properties should be self-documenting
+ **Include nullability:** Mark optional fields appropriately
+ **Add JsonPropertyName:** For complex field mappings
+ **Version schemas:** Plan for evolution
+
+---
+
+## With a Session
 
 ```csharp
 AgentSession session = await agent.CreateSessionAsync();
@@ -312,8 +312,11 @@ var response1 = await agent.RunAsync<CustomsClearanceAssessment>(
 var response2 = await agent.RunAsync<CustomsClearanceAssessment>(
     "The sender is a trusted supplier. Reassess with that context.", session);
 
-// Both responses are strongly typed ✅
+// Both responses are strongly typed 
 Console.WriteLine($"Initial risk: {response1.Output.RiskLevel}");
 Console.WriteLine($"Updated risk: {response2.Output.RiskLevel}");
 ```
+
+
+
 
