@@ -9,7 +9,7 @@ using System.ComponentModel;
 /// ToolApprovalRequestContent for the operator to confirm before the method
 /// body is ever invoked.
 /// </summary>
-public class RestrictedOfficerActions
+public class ApprovalRequiredActions
 {
     [Description(
         "Flag a shipment for physical detention by customs authorities. " +

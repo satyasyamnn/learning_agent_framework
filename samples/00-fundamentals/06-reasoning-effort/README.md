@@ -1,77 +1,60 @@
-﻿#  Fundamentals 06: Reasoning Effort Controls
+# Fundamentals 06: Reasoning Effort Controls
 
-## Quick Context
-This project demonstrates how to tune **reasoning effort levels** in agent responses. Different problems require different levels of thinking: simple questions need minimal reasoning, while complex analysis requires extended thought.
-
-**Point to Remember:** Control reasoning depth to balance cost, latency, and quality.
+Control reasoning depth to balance cost, latency, and quality.
 
 ---
 
-## Points to Consider
+## What is LLM Reasoning?
 
--  Use baseline (default) reasoning for standard tasks
--  Set minimal reasoning for fast, simple responses
--  Enable high reasoning for complex analysis
--  Monitor reasoning tokens and cost implications
--  Choose appropriate reasoning levels for your use case
+Large Language Models (LLMs) don’t just generate answers instantly—they often perform internal reasoning before responding. They perform internal **chain-of-thought reasoning** before responding — thinking step-by-step before producing the final answer. This reasoning is hidden from the output but still consumes tokens and affects cost.
 
----
+### Token Types
 
-## Main Ideas
-
-### Reasoning Levels in OpenAI Models
-
-```
-
-      ChatReasoningEffortLevel Options        
-
- Baseline (Default)                          
- - Standard model reasoning behavior         
- - Balanced cost/quality                     
- - Best for general tasks                    
-                                             
- Minimal                                     
- - Fastest responses                         
- - Lowest cost                               
- - For simple Q&A                            
-                                             
- High                                        
- - Extended thinking enabled                 
- - Best for complex reasoning                
- - Highest cost & latency                    
- - More reasoning tokens used                
-
-```
+| Token Type | Visible? | Billed? | Description |
+| ---------- | -------- | ------- | ----------- |
+| Input | Yes | Yes | What you send to the model |
+| Output | Yes | Yes | What the model returns |
+| Reasoning | No | Yes | Internal "thinking" steps |
 
 ---
 
-### 1. Baseline Reasoning (Default)
+## Reasoning Levels
+
+| Level | Speed | Cost | Reasoning Tokens | Best For | Example Use Cases |
+| ----- | ----- | ---- | --------------- | -------- | ----------------- |
+| **Minimal** | Fastest | Lowest | Few | Simple Q&A, quick lookups | "What is the HS code for electronics?", "When does the port close?", "Show tariff rate for shoes" |
+| **Baseline** | Medium | Medium | Moderate | General tasks, standard operations | "Assess this shipment for compliance", "What documents are required?", "Estimate duty and processing time" |
+| **High** | Slowest | Highest | Many | Complex analysis, high-stakes decisions | "Design an optimal clearance strategy", "Analyze trade patterns for cost savings", "Create a risk mitigation plan" |
+
+---
+
+## Decision Guide
+
+When deciding which level to use, consider the nature of the task:
+
+1. **Quick lookup or simple fact?** → Use `Minimal`
+2. **Standard task or general analysis?** → Use `Baseline` (Default)
+3. **Complex, high-stakes, or multi-step problem?** → Use `High`
+
+---
+
+## Code Examples
+
+### Baseline (Default)
 
 ```csharp
 ChatClientAgent agent = azureOpenAIClient
     .GetChatClient(deploymentName)
     .AsAIAgent(
         name: "CustomsReasoningBaseline",
-        instructions: "You are a customs clearance operations expert. Give concise and practical guidance.");
+        instructions: "You are a customs clearance operations expert.");
 
-AgentResponse response = await agent.RunAsync(
-    "For customs shipment CSH-9021 entering Germany from Singapore, " +
-    "identify likely inspection focus areas and recommend a fast-track action plan. " +
-    "Return in max 35 words.");
-
-Console.WriteLine(response.Text);
+AgentResponse response = await agent.RunAsync(customsQuestion);
 response.WriteTokenUsageToConsole("Baseline");
-
-// Output:
-// Response: Focus on electronics certifications and origin verification...
-//  Baseline | Input: 45 tokens | Output: 28 tokens | Total: 73 tokens
+// Baseline | Input: 45 | Output: 28 | Total: 73 tokens
 ```
 
-**When to use:** Default choice for most tasks.
-
----
-
-### 2. Minimal Reasoning
+### Minimal
 
 ```csharp
 ChatClientAgent agent = azureOpenAIClient
@@ -81,7 +64,7 @@ ChatClientAgent agent = azureOpenAIClient
         Name = "CustomsReasoningMinimal",
         ChatOptions = new ChatOptions
         {
-            Instructions = "You are a customs clearance operations expert. Give concise guidance.",
+            Instructions = "You are a customs clearance operations expert.",
             RawRepresentationFactory = _ => new ChatCompletionOptions
             {
                 ReasoningEffortLevel = ChatReasoningEffortLevel.Minimal
@@ -91,268 +74,34 @@ ChatClientAgent agent = azureOpenAIClient
 
 AgentResponse response = await agent.RunAsync(customsQuestion);
 response.WriteTokenUsageToConsole("Minimal");
-
-// Output:
-//  Minimal | Input: 45 tokens | Output: 22 tokens | Total: 67 tokens
-//
-//  Faster response, fewer tokens, simpler reasoning
+// Minimal | Input: 45 | Output: 22 | Total: 67 tokens
 ```
 
-**When to use:** 
-- Simple factual questions
-- Quick lookups
-- When speed matters more than depth
-
----
-
-### 3. High Reasoning
+### High
 
 ```csharp
-// Using Responses API for detailed reasoning insights
-var completionOptions = new ChatCompletionOptions
-{
-    ReasoningEffortLevel = ChatReasoningEffortLevel.High,
-    Temperature = 1.0f  // Required for high reasoning
-};
-
 var response = await azureOpenAIClient
     .GetChatClient(deploymentName)
     .CompleteChatAsync(
         new ChatMessage[] { new UserChatMessage(customsQuestion) },
-        completionOptions);
+        new ChatCompletionOptions
+        {
+            ReasoningEffortLevel = ChatReasoningEffortLevel.High,
+            Temperature = 1.0f  // Required for high reasoning
+        });
 
-// Access reasoning content
-var reasoning = response.Content
-    .OfType<ChatCompletionTokenLogprob>()
-    .FirstOrDefault();
-
-Console.WriteLine($"Reasoning Summary: {reasoning?.ReasoningSummary}");
+Console.WriteLine(response.Content[0].Text);
 response.WriteTokenUsageToConsole("High Reasoning");
-
-// Output:
-//  High Reasoning | Input: 45 tokens | Output: 187 tokens | Total: 232 tokens
-//
-//  More tokens, longer latency, but deeper analysis
+// High Reasoning | Input: 45 | Output: 187 | Total: 232 tokens
 ```
-
-**When to use:**
-- Complex multi-step problems
-- Strategic decisions
-- When quality is critical
-- Trade compliance analysis
 
 ---
 
 ## Folder Layout
 
-```
+```text
 06-reasoning-effort/
- Program.cs              # 3 reasoning level demonstrations
- appsettings.json        # Azure OpenAI config
- 06-reasoning-effort.csproj
+  Program.cs              # 3 reasoning level demonstrations
+  appsettings.json        # Azure OpenAI config
+  06-reasoning-effort.csproj
 ```
-
----
-
-## Output Comparison
-
-### Input Query:
-```
-"For customs shipment CSH-9021 entering Germany from Singapore, 
- identify likely inspection focus areas and recommend a fast-track action plan. 
- Return in max 35 words."
-```
-
-### Baseline Response:
-```
-Electronics shipments face enhanced scrutiny for compliance certifications.
-Focus on import licenses and origin verification. Fast-track: pre-clear
-documentation, use trusted broker.
-```
-**Tokens: 73 | Latency: ~500ms**
-
----
-
-### Minimal Response:
-```
-Check import licenses and origin docs. Use trusted broker for fast-track.
-```
-**Tokens: 67 | Latency: ~250ms** (40% faster, fewer tokens)
-
----
-
-### High Reasoning Response:
-```
-[Extended thinking process...]
-
-Inspection Focus Areas:
-1. Electronics origin verification (Singapore  Germany trade pattern)
-2. Import licensing compliance for EU electronics directives
-3. CITES compliance if sourcing includes natural materials
-4. Dual-use technology screening (unlikely but checked)
-5. Trade agreement benefits verification
-
-Fast-Track Recommendation:
-- Pre-file comprehensive origin documentation
-- Obtain valid import license 60 days before shipment
-- Use customs broker with high-compliance history
-- Consider AEO (Authorized Economic Operator) status
-```
-**Tokens: 232 | Latency: ~2000ms** (4x slower, more comprehensive)
-
----
-
-## Reasoning Level Comparison
-
-| Factor | Minimal | Baseline | High |
-|--------|---------|----------|------|
-| **Speed** |  Fastest |  Medium |  Slowest |
-| **Cost** |  Lowest |  Medium |  Highest |
-| **Output Tokens** | ~22 | ~28 | ~187 |
-| **Depth** | Shallow | Balanced | Deep |
-| **Best For** | Simple Q&A | General tasks | Complex analysis |
-| **Example** | "What's the HS code?" | "Assess the shipment" | "Optimize clearance strategy" |
-
----
-
-## Cost View
-
-```
-Baseline: 73 tokens @ $0.000005/token = ~$0.00037
-Minimal:  67 tokens @ $0.000005/token = ~$0.00034 (8% savings)
-High:    232 tokens @ $0.00002/token = ~$0.00464 (12x more expensive)
-
-For 1000 queries:
-- Minimal:  $340  (baseline)
-- Baseline: $370
-- High:    $4640  (strategic decisions only!)
-```
-
----
-
-## Quick Choice Guide
-
-```
-                     Is it a quick lookup?
-                      YES  Minimal 
-                    
-Start Question 
-                    
-                      NO  Is it a standard task?
-                      YES  Baseline 
-                    
-                     Is it complex/high-stakes?
-                       YES  High 
-```
-
----
-
-## Real Examples
-
-### Use Minimal:
-```csharp
-//  Quick reference lookups
-"What is the HS code for electronics?"
-"When is the port open?"
-"Show me the tariff rate for shoes"
-```
-
-### Use Baseline:
-```csharp
-//  Standard operational tasks
-"Assess this shipment for compliance"
-"What documents are required?"
-"Estimate duty and processing time"
-```
-
-### Use High:
-```csharp
-//  Complex strategic decisions
-"Design an optimal customs clearance strategy"
-"Analyze trade patterns to find cost savings"
-"Create a risk mitigation plan for high-value shipments"
-```
-
----
-
-## Key Methods Used
-
-| API | Purpose |
-|-----|---------|
-| `ChatReasoningEffortLevel.Minimal` | Fast, simple reasoning |
-| `ChatReasoningEffortLevel.Baseline` | Default balanced reasoning |
-| `ChatReasoningEffortLevel.High` | Extended thinking |
-| `response.WriteTokenUsageToConsole()` | Monitor cost/latency |
-| `ReasoningSummary` | Get reasoning explanation |
-
----
-
-## Setup
-
-```json
-{
-  "AzureOpenAI": {
-    "Endpoint": "https://<resource>.openai.azure.com/",
-    "DeploymentName": "gpt-4-turbo",
-    "ResponsesModel": "gpt-4-turbo",
-    "ApiKey": "your-key-or-managed-identity"
-  }
-}
-```
-
-**Important:** Use models with reasoning support (gpt-4 series).
-
----
-
-## Run It
-
-```bash
-cd 06-reasoning-effort
-dotnet run
-```
-
-Observe the token counts and latency differences across reasoning levels.
-
----
-
-## Practical Tips
-
- **Start with Baseline:** Default choice for most tasks
- **Profile Before Optimizing:** Measure tokens/latency first
- **Use Minimal for UI:** Keep user-facing latency low
- **Reserve High for Batch:** Run expensive reasoning off-hours
- **Monitor Costs:** High reasoning can add significant expense
-
----
-
-## Extra: Adaptive Reasoning
-
-```csharp
-async Task<AgentResponse> RunWithAdaptiveReasoning(string question, AIAgent agent)
-{
-    // Start with baseline estimate
-    var baselineResponse = await agent.RunAsync(question);
-    
-    // If response seems incomplete, upgrade to high reasoning
-    if (baselineResponse.Text.Length < 50)
-    {
-        // Retry with high reasoning
-        var improvedAgent = CreateAgentWithHighReasoning();
-        return await improvedAgent.RunAsync(question);
-    }
-    
-    return baselineResponse;
-}
-```
-
----
-
-## Try Next
-
--  **Next Project:** [07-middleware-usage](../07-middleware-usage/README.md) - Monitor and intercept agent operations
--  **Related:** [05-structured-output](../05-structured-output/README.md) - Get reliable structured responses
--  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Multi-turn with reasoning
-
-
-
-

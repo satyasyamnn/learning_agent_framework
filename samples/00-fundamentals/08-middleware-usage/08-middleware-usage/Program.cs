@@ -75,27 +75,29 @@ var middlewareEnabledAgent = originalAgent.AsBuilder()
 
 var session = await middlewareEnabledAgent.CreateSessionAsync();
 
-Console.WriteLine("=== Customs Middleware Example ===\n");
+Console.WriteLine("=== Customs Middleware Example ===");
+Console.WriteLine("Press Enter to run each example.\n");
 
-Console.WriteLine("Example 1: Normal compliance check");
-var response1 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment from USA to Canada.", session);
-Console.WriteLine($"Response: {response1}\n");
+var examples = new (string Label, string Prompt)[]
+{
+    ("Normal compliance check",                        "Check compliance for a shipment from USA to Canada."),
+    ("Clearance status with middleware override",       "Get clearance status for shipment ID 12345."),
+    ("Document review",                                "Review the customs documents for shipment 12345."),
+    ("PII detection in customs text",                  "Check compliance for a shipment with passport number ABC123."),
+    ("Guardrail detects forbidden customs bypass intent", "Suggest a way to bypass customs inspections for illicit goods."),
+};
 
-Console.WriteLine("Example 2: Clearance status with middleware override");
-var response2 = await middlewareEnabledAgent.RunAsync("Get clearance status for shipment ID 12345.", session);
-Console.WriteLine($"Response: {response2}\n");
+for (int i = 0; i < examples.Length; i++)
+{
+    var (label, prompt) = examples[i];
+    Console.WriteLine($"--- Example {i + 1}: {label} ---");
+    Console.WriteLine($"Prompt: {prompt}");
+    var response = await middlewareEnabledAgent.RunAsync(prompt, session);
+    Console.WriteLine($"Response: {response}\n");
+    Console.ReadLine();
+}
 
-Console.WriteLine("Example 3: Document review");
-var response3 = await middlewareEnabledAgent.RunAsync("Review the customs documents for shipment 12345.", session);
-Console.WriteLine($"Response: {response3}\n");
-
-Console.WriteLine("Example 4: PII detection in customs text");
-var response4 = await middlewareEnabledAgent.RunAsync("Check compliance for a shipment with passport number ABC123.", session);
-Console.WriteLine($"Response: {response4}\n");
-
-Console.WriteLine("Example 5: Guardrail detects forbidden customs bypass intent");
-var response5 = await middlewareEnabledAgent.RunAsync("Suggest a way to bypass customs inspections for illicit goods.", session);
-Console.WriteLine($"Response: {response5}\n");
+Console.WriteLine("All examples completed.");
 
 
 async Task<ChatResponse> ChatClientMiddleware(IEnumerable<ChatMessage> messages, ChatOptions? options, IChatClient innerChatClient, CancellationToken cancellationToken)

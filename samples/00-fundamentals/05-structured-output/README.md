@@ -1,25 +1,55 @@
-﻿#  Fundamentals 05: Structured Output
+#  Fundamentals 05: Structured Output
 
 ## Quick Context
 This project demonstrates how to get **strongly-typed, structured responses** from agents using JSON schemas. Instead of free-form text, agents return data that matches a predefined schema, enabling type-safe processing and validation.
 
 **Point to Remember:** Structured output enables reliable, machine-readable agent responses.
 
----
+## The Problem with LLM Responses
 
-## Points to Consider
+Let's say we're building a automation system. You ask an AI agent to assess based on the domain context, it returns beautiful English text describing risk levels, required documents, and duties. But now you need to:
 
--  Define JSON schemas for structured output
--  Use `ChatResponseFormat.ForJsonSchema<T>()` for response formatting
--  Deserialize agent responses to strongly-typed objects
--  Use `RunAsync<T>()` for automatic deserialization
--  Combine streaming with structured output
+- ✗ Parse that text programmatically — format is unpredictable
+- ✗ Fragile parsing
+- ✗ Validate the data — no type safety
+- ✗ Feed it into your database or downstream system
 
----
+**Traditional approach = brittle, error-prone text parsing.**
 
-## Main Ideas
+## Why Structured Output Helps
+
+ - **Type Safety:** Compile-time error detection
+ - **Validation:** Schema ensures correct format
+ - **Parsing:** No manual JSON string manipulation
+ - **Integration:** Direct use in downstream code
+ - **Reliability:** Guaranteed response format
+ - **Documentation:** Schema is self-documenting
+
+## Key Methods Used
+
+| API | Purpose |
+|-----|---------|
+| `ChatResponseFormat.ForJsonSchema<T>()` | Define schema from class |
+| `agent.RunAsync<T>(prompt)` | Execute with typed output |
+| `response.Output` | Deserialized typed object |
+| `JsonSerializer.Deserialize<T>()` | Manual parsing fallback |
+
+
+## Method Comparison
+
+| Method | Type Safety | Ease | Streaming |  
+|--------|-------------|------|-----------| 
+| **ResponseFormat** | Partial | Medium |  Yes |  
+| **RunAsync<T>** |  Full |  Easy |  No | 
+| **Streaming** | Partial | Medium |  Yes |  
+
+--- 
+
+## Steps
 
 ### 1. Define a Response Schema
+
+Define as class to the **exact structure** of responses the agent returns. For example, 
 
 ```csharp
 public class CustomsClearanceAssessment
@@ -31,11 +61,12 @@ public class CustomsClearanceAssessment
     public decimal EstimatedDutyUsd { get; set; }
     public string RecommendedAction { get; set; }
 }
+
 ```
 
-This class defines the **exact structure** of responses the agent returns.
-
-### 2. Method 1: Using ResponseFormat
+### 2. - Step 2 Configure response mapping to the agent
+ 
+#### Method 1: Using ResponseFormat
 
 ```csharp
 AIAgent agent = chatClient.AsAIAgent(new ChatClientAgentOptions()
@@ -63,7 +94,7 @@ Console.WriteLine($"Estimated Duty: ${assessment.EstimatedDutyUsd}");
 
 ---
 
-### 3. Method 2: Using RunAsync<T> (Type-Safe)
+#### Method 2: Using RunAsync<T> (Type-Safe)
 
 ```csharp
 AIAgent agent = chatClient.AsAIAgent(
@@ -86,7 +117,7 @@ Console.WriteLine($"Documents: {string.Join(", ", assessment.RequiredDocuments)}
 
 ---
 
-### 4. Method 3: Streaming with Structured Output
+### Method 3: Streaming with Structured Output
 
 ```csharp
 AIAgent agent = chatClient.AsAIAgent(new ChatClientAgentOptions
@@ -106,57 +137,7 @@ await foreach (var chunk in agent.RunStreamingAsync(
     Console.Write(chunk);  // Prints JSON chunks as they arrive
 }
 ```
-
----
-
-## Folder Layout
-
-```
-05-structured-output/
- Program.cs              # 3 structured output methods
- Models/
-    CustomsClearanceAssessment.cs  # Response schema definition
- appsettings.json        # Azure OpenAI config
- 05-structured-output.csproj
-```
-
----
-
-## Sample Schema
-
-```csharp
-public class CustomsClearanceAssessment
-{
-    public string ShipmentId { get; set; }
-    public string Destination { get; set; }
-    public string HsCode { get; set; }
-    public string RiskLevel { get; set; }
-    public List<string> RequiredDocuments { get; set; }
-    public decimal EstimatedDutyUsd { get; set; }
-    public string RecommendedAction { get; set; }
-}
-```
-
-### Generated JSON Schema:
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "shipmentId": { "type": "string" },
-    "destination": { "type": "string" },
-    "hsCode": { "type": "string" },
-    "riskLevel": { "type": "string" },
-    "requiredDocuments": { "type": "array", "items": { "type": "string" } },
-    "estimatedDutyUsd": { "type": "number" },
-    "recommendedAction": { "type": "string" }
-  },
-  "required": ["shipmentId", "destination", "riskLevel"]
-}
-```
-
----
-
+ 
 ## Sample Output
 
 ### Input:
@@ -184,139 +165,3 @@ var assessment = new CustomsClearanceAssessment
     RecommendedAction = "Proceed with clearance. Green lane processing recommended."
 };
 ```
-
----
-
-## Method Comparison
-
-| Method | Type Safety | Ease | Streaming | Use When |
-|--------|-------------|------|-----------|----------|
-| **ResponseFormat** | Partial | Medium |  Yes | Manual control needed |
-| **RunAsync<T>** |  Full |  Easy |  No | Standard structured output |
-| **Streaming** | Partial | Medium |  Yes | Real-time feedback needed |
-
----
-
-## Why Structured Output Helps
-
- **Type Safety:** Compile-time error detection
- **Validation:** Schema ensures correct format
- **Parsing:** No manual JSON string manipulation
- **Integration:** Direct use in downstream code
- **Reliability:** Guaranteed response format
- **Documentation:** Schema is self-documenting
-
----
-
-## When This Is Useful
-
-###  Use for:
-- **Domain Models:** Assessment results, shipment data
-- **API Responses:** Returns to frontend clients
-- **Data Processing:** Further analysis or storage
-- **Validation:** Ensure response meets requirements
-- **Automation:** Machine-readable decisions
-
-###  Don't use for:
-- **Explanations:** Free-form reasoning texts
-- **Conversations:** Natural back-and-forth dialogue
-- **Streaming Analysis:** Long narrative responses
-- **Debugging:** Agent thinking/trace logs
-
----
-
-## Extra: Complex Nested Structures
-
-```csharp
-public class ShipmentBatch
-{
-    public string BatchId { get; set; }
-    public List<CustomsClearanceAssessment> Shipments { get; set; }
-    public decimal TotalDutyUsd { get; set; }
-    public Dictionary<string, int> DestinationCounts { get; set; }
-}
-
-// Use the same pattern
-AgentResponse<ShipmentBatch> response = 
-    await agent.RunAsync<ShipmentBatch>("Assess batch of 5 shipments...");
-```
-
----
-
-## Setup
-
-```json
-{
-  "AzureOpenAI": {
-    "Endpoint": "https://<resource>.openai.azure.com/",
-    "DeploymentName": "gpt-4o",
-    "ApiKey": "your-key-or-managed-identity"
-  }
-}
-```
-
-**Note:** Use `gpt-4o` or `gpt-4-turbo` for structured output support.
-
----
-
-## Key Methods Used
-
-| API | Purpose |
-|-----|---------|
-| `ChatResponseFormat.ForJsonSchema<T>()` | Define schema from class |
-| `agent.RunAsync<T>(prompt)` | Execute with typed output |
-| `response.Output` | Deserialized typed object |
-| `JsonSerializer.Deserialize<T>()` | Manual parsing fallback |
-
----
-
-## Run It
-
-```bash
-cd 05-structured-output
-dotnet run
-```
-
-Output shows three methods of getting structured responses, each producing the same typed object.
-
----
-
-## Try Next
-
--  **Next Project:** [06-reasoning-effort](../06-reasoning-effort/README.md) - Control reasoning depth
--  **Related:** [08-agent-with-tools](../08-agent-with-tools/README.md) - Tools that return structured data
--  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Structured output in sessions
-
----
-
-## Practical Tips
-
- **Keep schemas focused:** One response concept per class
- **Use descriptive names:** Properties should be self-documenting
- **Include nullability:** Mark optional fields appropriately
- **Add JsonPropertyName:** For complex field mappings
- **Version schemas:** Plan for evolution
-
----
-
-## With a Session
-
-```csharp
-AgentSession session = await agent.CreateSessionAsync();
-
-// Turn 1: Get structured assessment
-var response1 = await agent.RunAsync<CustomsClearanceAssessment>(
-    "Analyze shipment CSH-1001", session);
-
-// Turn 2: Follow-up with more context
-var response2 = await agent.RunAsync<CustomsClearanceAssessment>(
-    "The sender is a trusted supplier. Reassess with that context.", session);
-
-// Both responses are strongly typed 
-Console.WriteLine($"Initial risk: {response1.Output.RiskLevel}");
-Console.WriteLine($"Updated risk: {response2.Output.RiskLevel}");
-```
-
-
-
-

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text;
 using Fundamentals.Shared;
 using Microsoft.Agents.AI;
@@ -11,12 +11,12 @@ IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-CustomsQueryTools queryTools = new();
-MethodInfo[] methods = typeof(CustomsQueryTools).GetMethods(
+ShipmentQueryTools queryTools = new();
+MethodInfo[] methods = typeof(ShipmentQueryTools).GetMethods(
     BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-SimpleTools simpleTools = new();
-MethodInfo[] simpleMethods = typeof(SimpleTools).GetMethods(
+PortOperationsTools simpleTools = new();
+MethodInfo[] simpleMethods = typeof(PortOperationsTools).GetMethods(
     BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
 List<AITool> tools = methods
@@ -25,10 +25,12 @@ List<AITool> tools = methods
     .Cast<AITool>()
     .ToList();
 
-var detentionTool = AIFunctionFactory.Create(RestrictedOfficerActions.FlagShipmentForDetention);
+var detentionTool = AIFunctionFactory.Create(ApprovalRequiredActions.FlagShipmentForDetention);
 #pragma warning disable MEAI001 // ApprovalRequiredAIFunction is experimental in the current package version.
 tools.Add(new ApprovalRequiredAIFunction(detentionTool));
 #pragma warning restore MEAI001
+
+int activeCalls = 0;
 
 AIAgent agent = AiAgentFactory.CreateAgent(
         config,
@@ -110,18 +112,24 @@ while (true)
     Console.WriteLine(new string('-', 60));
 }
 
+
 async ValueTask<object?> ToolCallingMiddleware(
     AIAgent callingAgent,
     FunctionInvocationContext context,
     Func<FunctionInvocationContext, CancellationToken, ValueTask<object?>> next,
     CancellationToken cancellationToken)
 {
+    int concurrent = Interlocked.Increment(ref activeCalls);
+    string mode = concurrent > 1 ? "PARALLEL" : "SEQUENTIAL";
+    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+
     var sb = new StringBuilder();
-    sb.Append($"- Tool Call: '{context.Function.Name}'");
+    sb.Append($"[{timestamp}] [{mode}] Tool Call: '{context.Function.Name}'");
     if (context.Arguments.Count > 0)
         sb.Append($" (Args: {string.Join(", ", context.Arguments.Select(a => $"[{a.Key} = {a.Value}]"))})");
 
-    Console.ForegroundColor = ConsoleColor.DarkGray;
+    Console.ForegroundColor = concurrent > 1 ? ConsoleColor.Cyan : ConsoleColor.DarkGray;
     Console.WriteLine(sb.ToString());
     Console.ResetColor();
 
@@ -132,5 +140,13 @@ async ValueTask<object?> ToolCallingMiddleware(
     catch
     {
         throw;
+    }
+    finally
+    {
+        sw.Stop();
+        Interlocked.Decrement(ref activeCalls);
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Tool '{context.Function.Name}' completed in {sw.ElapsedMilliseconds}ms");
+        Console.ResetColor();
     }
 }

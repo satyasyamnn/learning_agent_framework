@@ -5,7 +5,7 @@ using System.ComponentModel;
 /// reflection in Program.cs and registered as agent tools.
 /// Adding a new public method here makes it available to the agent automatically.
 /// </summary>
-public class CustomsQueryTools
+public class ShipmentQueryTools
 {
     // ── Mock shipment registry ────────────────────────────────────────────────
     private static readonly Dictionary<string, ShipmentSummary> Shipments = new()

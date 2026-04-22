@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-public class SimpleTools
+public class PortOperationsTools
 {
     // Define tools as attributed methods
 // The Description attributes help the LLM understand what each tool/parameter does

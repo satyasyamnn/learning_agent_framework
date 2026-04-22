@@ -19,11 +19,11 @@
   <Folder Name="/samples/00-fundamentals/06-reasoning-effort/">
     <Project Path="samples/00-fundamentals/06-reasoning-effort/06-reasoning-effort/06-reasoning-effort.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/07-middleware-usage/">
-    <Project Path="samples/00-fundamentals/07-middleware-usage/07-middleware-usage/07-middleware-usage.csproj" />
+  <Folder Name="/samples/00-fundamentals/08-middleware-usage/">
+    <Project Path="samples/00-fundamentals/08-middleware-usage/08-middleware-usage/08-middleware-usage.csproj" />
   </Folder>
-  <Folder Name="/samples/00-fundamentals/08-agent-with-tools/">
-    <Project Path="samples/00-fundamentals/08-agent-with-tools/08-agent-with-tools/08-agent-with-tools.csproj" />
+  <Folder Name="/samples/00-fundamentals/07-agent-with-tools/">
+    <Project Path="samples/00-fundamentals/07-agent-with-tools/07-agent-with-tools/07-agent-with-tools.csproj" />
   </Folder>
   <Folder Name="/samples/00-fundamentals/09-agent-framework-skills/">
     <Project Path="samples/00-fundamentals/09-agent-framework-skills/09-agent-framework-skills/09-agent-framework-skills.csproj" />

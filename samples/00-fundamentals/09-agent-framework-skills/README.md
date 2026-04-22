@@ -1,34 +1,37 @@
-﻿#  Fundamentals 09: Agent Framework Skills
+# Fundamentals 09: Agent Framework Skills
 
-## Quick Context
-This project demonstrates **Agent Framework Skills**a way to encapsulate domain knowledge, business logic, and reusable workflows. Skills can be defined inline using the fluent API or loaded from files, enabling modular, maintainable agent workflows.
+## Overview
 
-**Point to Remember:** Skills organize complex agent behavior into reusable, composable units.
+This project demonstrates **Agent Framework Skills** — a way to encapsulate domain knowledge, business logic, and reusable workflows. Skills can be defined inline using the fluent API or loaded from files, enabling modular, maintainable agent behavior.
 
----
-
-## Points to Consider
-
--  Create inline skills with `AgentInlineSkill`
--  Add resources (reference materials) to skills
--  Add scripts (executable functions) to skills
--  Use skills with agents through `AIContextProviders`
--  Combine multiple skills for complex workflows
--  Generate dynamic content in skills
+> **Key Idea:** Skills organize complex agent behavior into reusable, composable units.
 
 ---
 
-## Main Ideas
+## What You Will Learn
 
-### What is a Skill?
-
-A skill packages:
-- **Description:** What the skill does
-- **Instructions:** How the agent should use it
-- **Resources:** Reference data (documents, policies)
-- **Scripts:** Executable functions (calculations, decisions)
+- Create inline skills with `AgentInlineSkill`
+- Add static and dynamic resources (reference materials) to skills
+- Add scripts (executable functions) to skills
+- Attach skills to agents via `AIContextProviders`
+- Combine multiple skills for complex workflows
 
 ---
+
+## What Is a Skill?
+
+A skill packages four things together:
+
+| Component | Purpose |
+|-----------|---------|
+| **Description** | What the skill does |
+| **Instructions** | How the agent should use it |
+| **Resources** | Reference data (documents, policies) |
+| **Scripts** | Executable functions (calculations, decisions) |
+
+---
+
+## Building a Skill
 
 ### 1. Define an Inline Skill
 
@@ -55,6 +58,8 @@ var clearancePacketSkill = new AgentInlineSkill(
 
 ### 2. Add Static Resources
 
+Static resources provide fixed reference content the agent can read.
+
 ```csharp
 .AddResource(
     "required-documents",
@@ -76,26 +81,28 @@ var clearancePacketSkill = new AgentInlineSkill(
 
 ### 3. Add Dynamic Resources
 
+Dynamic resources are re-generated each time the agent accesses them.
+
 ```csharp
 .AddResource(
     "lane-selection-policy",
     () => $$"""
         Lane selection policy snapshot (generated {{DateTime.UtcNow:O}}):
-        
+
         - Green lane: complete packet, low-risk origin, no restricted-party flags
         - Amber lane: document gaps, value anomalies, moderate compliance concerns
         - Red lane: missing control documents, licensing concerns, sanctions hits, high-risk origin
-        
+
         Last Updated: {{DateTime.UtcNow:O}}
         """,
     "Dynamic reference for how the customs team routes packets for review.")
 ```
 
-Dynamic resources are generated each time they're accessed.
-
 ---
 
 ### 4. Add Executable Scripts
+
+Scripts are typed functions the agent can invoke for calculations or decisions.
 
 ```csharp
 .AddScript(
@@ -116,11 +123,9 @@ Dynamic resources are generated each time they're accessed.
     "Estimate customs duty from declared value and duty rate percent.")
 ```
 
-Scripts are functions the agent can invoke for calculations or decisions.
-
 ---
 
-### 5. Attach Skills to Agent
+### 5. Attach Skills to an Agent
 
 ```csharp
 var skillsProvider = new AgentSkillsProvider(
@@ -142,72 +147,17 @@ AIAgent agent = azureClient
 
 ---
 
-## Folder Layout
+## Combining Multiple Skills
 
-```
-09-agent-framework-skills/
- Program.cs              # Inline skills demo
- Skills/
-    ClearancePacketSkill.cs  # Defined as fluent skill
-    RoutingDecisionSkill.cs  # Another skill example
- appsettings.json        # Azure OpenAI config
- 09-agent-framework-skills.csproj
-```
-
----
-
-## Sample Interaction
-
-### User Query:
-```
-"What documents do I need for a shipment valued at $5,000 with 6% duty?"
-```
-
-### Agent Processing:
-```
-1. Recognizes question about clearance documentation
-2. Activates "customs-clearance-packet" skill
-3. Retrieves "required-documents" resource
-4. Calls "estimate-duty" script with (5000, 6.0)
-5. Integrates results into response
-```
-
-### Response:
-```
-Based on the clearance packet skill:
-
-**Required Documents:**
- Commercial invoice (with USD pricing, not required for formal entry)
- Packing list with weights and carton IDs
- Bill of lading
- Entry summary/customs declaration
- Certificate of origin (not needed for routine imports)
- Import license (not required unless commodity is controlled)
-
-**Duty Estimation:**
-- Declared Value: $5,000 USD
-- Duty Rate: 6.0%
-- Estimated Duty: $300.00 USD
-- Formal Entry Recommended:  YES (value  $2,500)
-
-**Recommended Action:**
-File formal entry with complete packet. You'll likely be processed in the green lane
-if your origin has low-risk status.
-```
-
----
-
-## Combining Skills
-
-### Combining Multiple Skills
+The agent automatically selects the relevant skill based on user queries.
 
 ```csharp
 var skills = new[]
 {
-    ClearancePacketSkill,        // Document requirements
-    RiskAssessmentSkill,         // Port/origin risk  
-    DutyCalculationSkill,        // Tariff lookups
-    ComplianceCheckSkill,        // Sanctions screening
+    ClearancePacketSkill,    // Document requirements
+    RiskAssessmentSkill,     // Port/origin risk
+    DutyCalculationSkill,    // Tariff lookups
+    ComplianceCheckSkill,    // Sanctions screening
 };
 
 var skillsProvider = new AgentSkillsProvider(skills);
@@ -218,7 +168,67 @@ var agent = chatClient.AsAIAgent(new ChatClientAgentOptions
 });
 ```
 
-The agent automatically selects relevant skills based on user queries.
+---
+
+## Sample Interaction
+
+**User Query:**
+```
+"What documents do I need for a shipment valued at $5,000 with 6% duty?"
+```
+
+**Agent Processing:**
+1. Recognizes question about clearance documentation
+2. Activates `customs-clearance-packet` skill
+3. Retrieves `required-documents` resource
+4. Calls `estimate-duty` script with `(5000, 6.0)`
+5. Integrates results into a single response
+
+**Agent Response:**
+```
+Required Documents:
+  ✔ Commercial invoice (with USD pricing)
+  ✔ Packing list with weights and carton IDs
+  ✔ Bill of lading
+  ✔ Entry summary / customs declaration
+  ✔ Certificate of origin (if preferential treatment is claimed)
+  ✔ Import license (only if commodity is controlled)
+
+Duty Estimation:
+  Declared Value:            $5,000.00 USD
+  Duty Rate:                 6.0%
+  Estimated Duty:            $300.00 USD
+  Formal Entry Recommended:  YES (value ≥ $2,500)
+
+Recommended Action:
+  File formal entry with a complete packet. You will likely be processed
+  in the green lane if your origin has low-risk status.
+```
+
+---
+
+## Skills vs Tools vs Middleware
+
+| Feature | Skills | Tools | Middleware |
+|---------|--------|-------|------------|
+| **Purpose** | Organize domain knowledge | Call external functions | Intercept requests |
+| **Scope** | Knowledge + logic | Single function | Cross-cutting concerns |
+| **Reusability** | Across agents | Within tool calls | In pipelines |
+| **Complexity** | Can be complex workflows | Single operation | Typically simple |
+| **Example** | Clearance workflow | `GetWeather()` | Logging |
+
+---
+
+## Key API Reference
+
+| API | Purpose |
+|-----|---------|
+| `new AgentInlineSkill(name, desc, instructions)` | Create an inline skill |
+| `skill.AddResource(name, content, description)` | Add a static resource |
+| `skill.AddResource(name, generator, description)` | Add a dynamic resource |
+| `skill.AddScript(name, function, description)` | Add an executable script |
+| `new AgentSkillsProvider(skills)` | Wrap skills for an agent |
+| `AIContextProviders = [skillsProvider]` | Attach skills to an agent |
 
 ---
 
@@ -234,7 +244,7 @@ public static AgentInlineSkill CreateMySkill()
             When to use this skill:
             - Situation 1
             - Situation 2
-            
+
             How to use it:
             1. Step 1
             2. Step 2
@@ -256,99 +266,9 @@ public static AgentInlineSkill CreateMySkill()
 
 ---
 
-## Where Skills Help
-
- **Domain Workflows:**
-- Customs clearance procedures
-- Supply chain optimization
-- Risk assessment frameworks
-
- **Reference Materials:**
-- Tariff schedules
-- Policy documents
-- Compliance checklists
-
- **Calculations:**
-- Duty estimation
-- Cost calculations
-- Performance metrics
-
- **Decision Logic:**
-- Green/amber/red lane routing
-- Risk scoring
-- Approval workflows
-
----
-
-## Skills vs Tools vs Middleware
-
-| Feature | Skills | Tools | Middleware |
-|---------|--------|-------|------------|
-| **Purpose** | Organize domain knowledge | Call external functions | Intercept requests |
-| **Scope** | Knowledge + logic | Single function | Cross-cutting |
-| **Reusability** | Across agents | In tools | In pipelines |
-| **Complexity** | Can be complex workflows | Single operation | Typically simple |
-| **Example** | Clearance workflow | GetWeather() | Logging |
-
----
-
-## Folder Layout
-
-```
-09-agent-framework-skills/
- Program.cs              # Main entry
- Skills/
-    ClearancePacketSkill.cs
-    RiskAssessmentSkill.cs
-    SkillFactory.cs
- Models/
-    ShipmentData.cs
-    ClearancePacket.cs
- appsettings.json
- 09-agent-framework-skills.csproj
-```
-
----
-
-## Key Methods Used
-
-| API | Purpose |
-|-----|---------|
-| `new AgentInlineSkill(name, desc, instructions)` | Create inline skill |
-| `skill.AddResource(name, content, description)` | Add static reference |
-| `skill.AddResource(name, generator, description)` | Add dynamic reference |
-| `skill.AddScript(name, function, description)` | Add executable script |
-| `new AgentSkillsProvider(skills)` | Wrap skills for agent |
-| `AIContextProviders = [skillsProvider]` | Attach to agent |
-
----
-
-## Setup
-
-```json
-{
-  "AzureOpenAI": {
-    "Endpoint": "https://<resource>.openai.azure.com/",
-    "DeploymentName": "gpt-4o-mini",
-    "ApiKey": "your-key-or-managed-identity"
-  }
-}
-```
-
----
-
-## Run It
-
-```bash
-cd 09-agent-framework-skills
-dotnet run
-```
-
-Observe how the agent uses skills to answer complex operational questions.
-
----
-
 ## Extra: File-Based Skill Resources
+
+Skills can also load resources from the filesystem at runtime.
 
 ```csharp
 var policySkill = new AgentInlineSkill(
@@ -367,22 +287,10 @@ var policySkill = new AgentInlineSkill(
 
 ---
 
-## Try Next
-
--  **Next Project:** [10-csharp-file-script-runner](../10-csharp-file-script-runner/README.md) - File-based skills with C# scripts
--  **Related:** [01-agent-with-tools](../01-agent-with-tools/README.md) - Tools vs skills
--  **Related:** [06-middleware-usage](../06-middleware-usage/README.md) - Skills + middleware
-
----
-
 ## Practical Tips
 
- **Keep skills focused:** One domain concept per skill
- **Make instructions clear:** Agent needs to understand when to use skill
- **Use resources for reference:** Keep static data accessible
- **Keep scripts simple:** Complex logic belongs in tools
- **Document thoroughly:** Future maintainers will thank you
-
-
-
-
+- **Keep skills focused** — one domain concept per skill
+- **Write clear instructions** — the agent needs to know when and how to use the skill
+- **Use resources for reference data** — keep static knowledge accessible and named
+- **Keep scripts simple** — complex logic belongs in tools
+- **Document thoroughly** — future maintainers will thank you

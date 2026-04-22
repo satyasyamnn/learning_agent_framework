@@ -7,6 +7,19 @@ This project demonstrates how to intercept and modify agent behavior using **mid
 
 ---
 
+## Key Methods Used
+
+| API | Purpose |
+|-----|---------|
+| `chatClient.AsIChatClient().AsBuilder()` | Create middleware pipeline |
+| `.Use(middleware)` | Add middleware layer |
+| `.Build()` | Finalize pipeline |
+| `Func<ChatMessage[], ChatOptions, Task<ChatResponse>>` | Middleware signature |
+| `next(messages, options)` | Call next middleware layer |
+
+---
+
+
 ## Points to Consider
 
 -  Understand middleware pipeline architecture
@@ -22,32 +35,20 @@ This project demonstrates how to intercept and modify agent behavior using **mid
 
 ### Middleware Architecture
 
-```
-User Input
-    
+```mermaid
+flowchart LR
+    A([User]) --> B["ChatClient\nMiddleware"]
+    B --> C["Agent\nExecution"]
+    C --> D["Function Calling\nMiddleware"]
+    D --> E["AI Model\nRequest"]
+    E --> F([Response])
 
-       ChatClient Middleware Layer         
-  (Log request, validate prompt, etc.)     
-
-               
-
-       Agent Execution Layer               
-  (Run instructions, set up context)       
-
-               
-
-    Function Calling Middleware Layer      
-  (Log tool calls, approve sensitive ops)  
-
-               
-
-       AI Model Request Layer              
-  (Call Azure OpenAI API)                  
-
-               
-        Agent Response
-             
-      Return to User
+    style A fill:#4A90D9,color:#fff,stroke:none
+    style F fill:#4A90D9,color:#fff,stroke:none
+    style B fill:#E8F4FD,stroke:#4A90D9,stroke-width:2px
+    style C fill:#EDF7ED,stroke:#5AAF5A,stroke-width:2px
+    style D fill:#FEF9E7,stroke:#D4AC0D,stroke-width:2px
+    style E fill:#FDEDEC,stroke:#E74C3C,stroke-width:2px
 ```
 
 ---
@@ -372,73 +373,4 @@ Request travels: 1  2  3  4  5  Agent  5  4  3  2  1
 - **Use for business logic:** Keep domain code separate
 
 ---
-
-## Key Methods Used
-
-| API | Purpose |
-|-----|---------|
-| `chatClient.AsIChatClient().AsBuilder()` | Create middleware pipeline |
-| `.Use(middleware)` | Add middleware layer |
-| `.Build()` | Finalize pipeline |
-| `Func<ChatMessage[], ChatOptions, Task<ChatResponse>>` | Middleware signature |
-| `next(messages, options)` | Call next middleware layer |
-
----
-
-## Setup
-
-```json
-{
-  "AzureOpenAI": {
-    "Endpoint": "https://<resource>.openai.azure.com/",
-    "DeploymentName": "gpt-4o-mini",
-    "ApiKey": "your-key-or-managed-identity"
-  }
-}
-```
-
----
-
-## Run It
-
-```bash
-cd 07-middleware-usage
-dotnet run
-```
-
-Observe middleware logging for each tool call and response.
-
----
-
-## Dashboard Example
-
-With middleware, you can build dashboards:
-
-```
-Request Distribution:
- Compliance Checks:   80%
- Status Lookups:      50%
- Document Reviews:    30%
-
-Performance Metrics:
- Avg Latency:        1.2s
- P99 Latency:        3.1s
- Error Rate:         0.3%
-
-Tool Usage:
- Most Called:        GetClearanceStatus
- Slowest:            ReviewDocuments
- Most Errors:        CheckCompliance
-```
-
----
-
-## Try Next
-
--  **Next Project:** [09-agent-framework-skills](../09-agent-framework-skills/README.md) - Agent Skills for complex workflows
--  **Related:** [08-agent-with-tools](../08-agent-with-tools/README.md) - Tools that middleware monitors
--  **Related:** [04-proper-session-multiturn](../04-proper-session-multiturn/README.md) - Sessions with middleware
-
-
-
 

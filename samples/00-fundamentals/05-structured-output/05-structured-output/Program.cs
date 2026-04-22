@@ -5,7 +5,6 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using OpenAI.Chat;
 
-// Load configuration
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
@@ -13,22 +12,16 @@ IConfigurationRoot config = new ConfigurationBuilder()
 Console.WriteLine("=== Structured Output for Customs Clearance ===\n");
 
 ChatClient chatClient = AiAgentFactory.CreateChatClient(config);
-JsonSerializerOptions jsonOptions = new()
-{
-    PropertyNameCaseInsensitive = true
-};
+JsonSerializerOptions jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
 await UseStructuredOutputWithResponseFormatAsync(chatClient, jsonOptions);
 await UseStructuredOutputWithRunAsyncAsync(chatClient);
 await UseStructuredOutputWithRunStreamingAsync(chatClient, jsonOptions);
 
-static async Task UseStructuredOutputWithResponseFormatAsync(ChatClient chatClient, JsonSerializerOptions jsonOptions)
-{
-    Console.WriteLine(">>> 1) Structured output with ResponseFormat\n");
-
-    AIAgent agent = chatClient.AsAIAgent(new ChatClientAgentOptions()
+static AIAgent CreateStructuredAgent(ChatClient chatClient, string name) =>
+    chatClient.AsAIAgent(new ChatClientAgentOptions
     {
-        Name = "CustomsStructuredOutputAgent",
+        Name = name,
         ChatOptions = new()
         {
             Instructions = "You are a customs clearance analyst. Return only valid JSON matching the requested schema.",
@@ -36,20 +29,15 @@ static async Task UseStructuredOutputWithResponseFormatAsync(ChatClient chatClie
         }
     });
 
-    AgentResponse response = await agent.RunAsync(
-        "Assess shipment CSH-3017 to Germany with HS code 854231, declared value 125000 USD, and a duty rate of 4.2%. " +
-        "Include risk level, required documents, and a concise recommended action.");
-
-    Console.WriteLine("Assistant Output (JSON):");
-    Console.WriteLine(response.Text);
-
-    CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(response.Text, jsonOptions)
+static void DeserializeAndPrint(string json, JsonSerializerOptions options, string label)
+{
+    CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(json, options)
         ?? throw new InvalidOperationException("Failed to deserialize structured output.");
-
-    Console.WriteLine("\nAssistant Output (Deserialized):");
+    Console.WriteLine(label);
     PrintAssessment(assessment);
     Console.WriteLine();
 }
+
 
 static async Task UseStructuredOutputWithRunAsyncAsync(ChatClient chatClient)
 {
@@ -68,19 +56,26 @@ static async Task UseStructuredOutputWithRunAsyncAsync(ChatClient chatClient)
     Console.WriteLine();
 }
 
+static async Task UseStructuredOutputWithResponseFormatAsync(ChatClient chatClient, JsonSerializerOptions jsonOptions)
+{
+    Console.WriteLine(">>> 1) Structured output with ResponseFormat\n");
+
+    AIAgent agent = CreateStructuredAgent(chatClient, "CustomsStructuredOutputAgent");
+
+    AgentResponse response = await agent.RunAsync(
+        "Assess shipment CSH-3017 to Germany with HS code 854231, declared value 125000 USD, and a duty rate of 4.2%. " +
+        "Include risk level, required documents, and a concise recommended action.");
+
+    Console.WriteLine("Assistant Output (JSON):");
+    Console.WriteLine(response.Text);
+    DeserializeAndPrint(response.Text, jsonOptions, "\nAssistant Output (Deserialized):");
+}
+
 static async Task UseStructuredOutputWithRunStreamingAsync(ChatClient chatClient, JsonSerializerOptions jsonOptions)
 {
     Console.WriteLine(">>> 3) Structured output with RunStreamingAsync\n");
 
-    AIAgent agent = chatClient.AsAIAgent(new ChatClientAgentOptions()
-    {
-        Name = "CustomsStreamingStructuredOutputAgent",
-        ChatOptions = new()
-        {
-            Instructions = "You are a customs clearance analyst. Return only valid JSON matching the requested schema.",
-            ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<CustomsClearanceAssessment>()
-        }
-    });
+    AIAgent agent = CreateStructuredAgent(chatClient, "CustomsStreamingStructuredOutputAgent");
 
     Console.WriteLine("Streaming JSON Output:");
     IAsyncEnumerable<AgentResponseUpdate> updates = agent.RunStreamingAsync(
@@ -89,13 +84,7 @@ static async Task UseStructuredOutputWithRunStreamingAsync(ChatClient chatClient
 
     AgentResponse response = await updates.ToAgentResponseAsync();
     Console.WriteLine(response.Text);
-
-    CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(response.Text, jsonOptions)
-        ?? throw new InvalidOperationException("Failed to deserialize streamed structured output.");
-
-    Console.WriteLine("\n\nAssembled Structured Output:");
-    PrintAssessment(assessment);
-    Console.WriteLine();
+    DeserializeAndPrint(response.Text, jsonOptions, "\n\nAssembled Structured Output:");
 }
 
 static void PrintAssessment(CustomsClearanceAssessment assessment)
