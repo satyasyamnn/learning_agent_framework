@@ -13,7 +13,7 @@ internal static class TokenUsageConsoleExtensions
         }
 
         Console.WriteLine(
-            $"[{label}] Input: {response.Usage.InputTokenCount} | Output: {response.Usage.OutputTokenCount} | Reasoning: {response.Usage.ReasoningTokenCount}");
+            $"[{label}] Input: {response.Usage.InputTokenCount} | Output: {response.Usage.OutputTokenCount} | Reasoning: {response.Usage.ReasoningTokenCount} | Total: {response.Usage.TotalTokenCount} ");
     }
 
     public static async Task<AgentResponse> WriteStreamingResponseAndTokenUsageToConsoleAsync(
