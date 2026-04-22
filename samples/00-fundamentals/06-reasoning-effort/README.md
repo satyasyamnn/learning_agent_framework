@@ -94,14 +94,3 @@ Console.WriteLine(response.Content[0].Text);
 response.WriteTokenUsageToConsole("High Reasoning");
 // High Reasoning | Input: 45 | Output: 187 | Total: 232 tokens
 ```
-
----
-
-## Folder Layout
-
-```text
-06-reasoning-effort/
-  Program.cs              # 3 reasoning level demonstrations
-  appsettings.json        # Azure OpenAI config
-  06-reasoning-effort.csproj
-```

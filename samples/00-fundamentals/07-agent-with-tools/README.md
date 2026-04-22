@@ -5,7 +5,38 @@ This project demonstrates how to extend agents with **function calling** capabil
 
 **Point to Remember:** Tools enable agents to access external data and services dynamically.
 
----
+## Use Case: Customs Operations Assistant
+
+This sample builds an AI agent that acts as a **customs clearance assistant**, helping port officers make decisions on incoming shipments.
+
+### What the agent can do
+
+**Shipment queries** (`ShipmentQueryTools`):
+
+- Look up shipment status by ID — importer, origin country, declared value, and HS codes
+- Look up tariff entries for HS codes — duty rate, VAT rate, and import licence requirement
+- Check whether a country is on the sanctions list (Iran, North Korea, Syria, Cuba)
+- List all shipments currently pending or under review
+- Calculate estimated customs duty + VAT for a given HS code and declared value
+
+**Port operations** (`PortOperationsTools`):
+
+- Get disruption risk status for major ports (Singapore, Rotterdam, Los Angeles, Dubai)
+- Estimate duty from a declared value and a duty rate percentage
+- Get average customs clearance times per port
+
+**Human-in-the-loop approval** (`ApprovalRequiredActions`):
+
+- Flag a shipment for physical **detention** — a legally consequential action wrapped in `ApprovalRequiredAIFunction` that pauses execution and prompts the officer to confirm with `Y` before the order is recorded
+
+### Key concepts demonstrated
+
+| Concept | How it is shown |
+| ------- | --------------- |
+| Reflection-based tool registration | All public methods on the tool classes are auto-discovered and registered — adding a new method is enough to expose it to the agent |
+| Human-in-the-loop / approval gate | The detention tool uses `ApprovalRequiredAIFunction`, surfacing a `ToolApprovalRequestContent` that the app must resolve before the agent continues |
+| Tool-calling middleware | A pipeline middleware logs each tool call with timestamp, elapsed time, and whether calls ran sequentially or in **parallel** (highlighted in cyan) |
+
 
 ## Points to Consider
 
