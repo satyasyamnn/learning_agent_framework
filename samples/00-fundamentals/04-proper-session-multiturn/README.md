@@ -5,7 +5,26 @@ This project demonstrates the **correct pattern for multi-turn conversations** u
 
 **Point to Remember:** Sessions are essential for stateful, context-aware agent interactions.
 
----
+## Key Methods Used
+
+| API | Purpose |
+|-----|---------|
+| `agent.CreateSessionAsync()` | Create new session for conversation history |
+| `agent.RunAsync(msg, session)` | Execute turn with session context |
+| `agent.RunStreamingAsync(msg, session)` | Streaming with session state |
+| `agent.SerializeSessionAsync(session)` | Persist session for storage |
+| `agent.DeserializeSessionAsync(data)` | Restore session from storage |
+| `response.WriteTokenUsageToConsole()` | Display token metrics |
+
+
+## Session Flow
+
+```mermaid
+flowchart LR
+    A([Start]) --> B[CreateSessionAsync] --> C["RunAsync(msg, session)\nTurn 1 → N  ·  history grows each turn"] --> P{Persist?}
+    P -- Yes --> G[SerializeSessionAsync] --> H[Store - File/ Redis / DB] --> I[DeserializeSessionAsync] --> C
+    P -- No --> Z([End Session])
+```
 
 ## Chat & Conversation Management
 
@@ -28,29 +47,7 @@ This project demonstrates the **correct pattern for multi-turn conversations** u
 
 ---
 
-## Key Methods Used
 
-| API | Purpose |
-|-----|---------|
-| `agent.CreateSessionAsync()` | Create new session for conversation history |
-| `agent.RunAsync(msg, session)` | Execute turn with session context |
-| `agent.RunStreamingAsync(msg, session)` | Streaming with session state |
-| `agent.SerializeSessionAsync(session)` | Persist session for storage |
-| `agent.DeserializeSessionAsync(data)` | Restore session from storage |
-| `response.WriteTokenUsageToConsole()` | Display token metrics |
-
----
-
-## Session Flow
-
-```mermaid
-flowchart LR
-    A([Start]) --> B[CreateSessionAsync] --> C["RunAsync(msg, session)\nTurn 1 → N  ·  history grows each turn"] --> P{Persist?}
-    P -- Yes --> G[SerializeSessionAsync] --> H[Store\nRedis / DB] --> I[DeserializeSessionAsync] --> C
-    P -- No --> Z([End Session])
-```
-
----
 
 ## Token Usage Tracking
 
