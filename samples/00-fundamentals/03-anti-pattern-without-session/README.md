@@ -18,7 +18,7 @@ This project is a **deliberate anti-pattern** showing what happens when you try 
 - Costs keep increasing
 - No audit trail or debugging capability
 
-In short: The agent feels unreliable, expensive, and frustrating.”
+The agent feels unreliable
 
 ---
 
@@ -65,4 +65,3 @@ Each `RunAsync()` call creates a **fresh conversation** with just the agent's in
 1. **No Memory:** Each `RunAsync()` is independent
 2. **No History:** Previous messages aren't sent to the model
 3. **No Context:** Agent can't retain or recall user information
-4. **Poor UX:** Users feel like the agent has amnesia

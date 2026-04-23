@@ -23,5 +23,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\Shared\FundamentalsAgentFactory.cs" Link="Shared\FundamentalsAgentFactory.cs" />
+    <None Include="..\README.md" Link="README.md" />
   </ItemGroup>
 </Project>

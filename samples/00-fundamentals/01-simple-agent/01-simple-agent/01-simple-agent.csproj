@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <None Include="..\..\..\..\shared\appsettings\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="Always" />
+    <None Include="..\README.md" Link="README.md" />
   </ItemGroup>
 
   <ItemGroup>

@@ -26,6 +26,7 @@ Console.WriteLine(">>> Single turn - streaming\n");
 await foreach (var update in agent.RunStreamingAsync("List three best practices for reducing last-mile delivery disruptions."))
 {
     Console.Write(update);
+    Thread.Sleep(10);
 }
 Console.WriteLine("\n");
 
