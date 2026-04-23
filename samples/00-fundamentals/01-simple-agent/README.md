@@ -1,5 +1,7 @@
 ﻿#  Fundamentals 01: Simple Agent
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates the **most basic agent setup** in the Microsoft Agent Framework. It shows how to create an AI agent with simple instructions and handle single-turn interactions without tools or sessions.
 
@@ -27,7 +29,16 @@ Use `DefaultAzureCredential` — works with az login locally and Managed Identit
 
 ---
 
-## Key Methods Used
+## How to create Agent 
+
+-  Create an AI agent from a ChatClient
+-  Add instructions to guide agent behavior
+-  Execute single-turn agent interactions
+-  Handle both streaming and non-streaming responses
+
+---
+
+## Key API Details
 
 | API | Purpose |
 |-----|---------|
@@ -35,16 +46,6 @@ Use `DefaultAzureCredential` — works with az login locally and Managed Identit
 | `agent.RunAsync()` | Execute single-turn agent interaction |
 | `agent.RunStreamingAsync()` | Execute with streaming response |
 | `AgentResponse` | Contains response text and metadata |
-
-
-## Main Ideas
-
-### Points to Consider
-
--  Create an AI agent from a ChatClient
--  Add instructions to guide agent behavior
--  Execute single-turn agent interactions
--  Handle both streaming and non-streaming responses
 
 ---
 

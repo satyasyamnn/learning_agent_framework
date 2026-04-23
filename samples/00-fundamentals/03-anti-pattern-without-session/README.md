@@ -1,5 +1,7 @@
 ﻿#  Fundamentals 03: Anti-Pattern - Multi-Turn Without Session
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project is a **deliberate anti-pattern** showing what happens when you try to maintain multi-turn conversations **without using sessions**. Each call to `RunAsync()` is independent  the agent has no memory of previous interactions.
 

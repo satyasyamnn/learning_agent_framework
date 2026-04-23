@@ -1,5 +1,7 @@
 ﻿#  Fundamentals 10: C# File-Based Skill Script Runner
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates how to use **file-based skills** (`SKILL.md` files) executed by a **C# script runner** (`.csx`). This enables non-Python environments to implement skills with executable scripts in C#, without requiring Python or external dependencies.
 

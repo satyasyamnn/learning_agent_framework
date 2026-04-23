@@ -1,5 +1,7 @@
 # Fundamentals 06: Reasoning Effort Controls
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 Control reasoning depth to balance cost, latency, and quality.
 
 ---

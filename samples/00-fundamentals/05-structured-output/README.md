@@ -1,5 +1,7 @@
 #  Fundamentals 05: Structured Output
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates how to get **strongly-typed, structured responses** from agents using JSON schemas. Instead of free-form text, agents return data that matches a predefined schema, enabling type-safe processing and validation.
 

@@ -1,5 +1,7 @@
 ﻿#  Fundamentals 04: Proper Multi-Turn with AgentSession
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates the **correct pattern for multi-turn conversations** using `AgentSession`. The agent maintains full conversation history, allowing it to remember context across multiple interactions and provide coherent, context-aware responses.
 

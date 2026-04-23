@@ -1,5 +1,7 @@
 ﻿#  Fundamentals 07: Middleware Usage
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates how to intercept and modify agent behavior using **middleware**. Middleware lets you log operations, validate inputs, modify responses, enforce policies, and moreall without changing core agent logic.
 

@@ -1,5 +1,7 @@
 # Fundamentals 09: Agent Framework Skills
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Overview
 
 This project demonstrates **Agent Framework Skills** — a way to encapsulate domain knowledge, business logic, and reusable workflows. Skills can be defined inline using the fluent API or loaded from files, enabling modular, maintainable agent behavior.

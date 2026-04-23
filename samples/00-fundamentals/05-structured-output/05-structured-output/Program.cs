@@ -18,27 +18,6 @@ await UseStructuredOutputWithResponseFormatAsync(chatClient, jsonOptions);
 await UseStructuredOutputWithRunAsyncAsync(chatClient);
 await UseStructuredOutputWithRunStreamingAsync(chatClient, jsonOptions);
 
-static AIAgent CreateStructuredAgent(ChatClient chatClient, string name) =>
-    chatClient.AsAIAgent(new ChatClientAgentOptions
-    {
-        Name = name,
-        ChatOptions = new()
-        {
-            Instructions = "You are a customs clearance analyst. Return only valid JSON matching the requested schema.",
-            ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<CustomsClearanceAssessment>()
-        }
-    });
-
-static void DeserializeAndPrint(string json, JsonSerializerOptions options, string label)
-{
-    CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(json, options)
-        ?? throw new InvalidOperationException("Failed to deserialize structured output.");
-    Console.WriteLine(label);
-    PrintAssessment(assessment);
-    Console.WriteLine();
-}
-
-
 static async Task UseStructuredOutputWithRunAsyncAsync(ChatClient chatClient)
 {
     Console.WriteLine(">>> 2) Structured output with RunAsync<T>\n");
@@ -55,6 +34,17 @@ static async Task UseStructuredOutputWithRunAsyncAsync(ChatClient chatClient)
     PrintAssessment(response.Result);
     Console.WriteLine();
 }
+
+static AIAgent CreateStructuredAgent(ChatClient chatClient, string name) =>
+    chatClient.AsAIAgent(new ChatClientAgentOptions
+    {
+        Name = name,
+        ChatOptions = new()
+        {
+            Instructions = "You are a customs clearance analyst. Return only valid JSON matching the requested schema.",
+            ResponseFormat = Microsoft.Extensions.AI.ChatResponseFormat.ForJsonSchema<CustomsClearanceAssessment>()
+        }
+    });
 
 static async Task UseStructuredOutputWithResponseFormatAsync(ChatClient chatClient, JsonSerializerOptions jsonOptions)
 {
@@ -86,6 +76,17 @@ static async Task UseStructuredOutputWithRunStreamingAsync(ChatClient chatClient
     Console.WriteLine(response.Text);
     DeserializeAndPrint(response.Text, jsonOptions, "\n\nAssembled Structured Output:");
 }
+
+
+static void DeserializeAndPrint(string json, JsonSerializerOptions options, string label)
+{
+    CustomsClearanceAssessment assessment = JsonSerializer.Deserialize<CustomsClearanceAssessment>(json, options)
+                                            ?? throw new InvalidOperationException("Failed to deserialize structured output.");
+    Console.WriteLine(label);
+    PrintAssessment(assessment);
+    Console.WriteLine();
+}
+
 
 static void PrintAssessment(CustomsClearanceAssessment assessment)
 {

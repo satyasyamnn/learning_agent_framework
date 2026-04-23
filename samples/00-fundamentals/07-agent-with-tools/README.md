@@ -1,5 +1,7 @@
 #  Fundamentals 07: Agent with Tools
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This project demonstrates how to extend agents with **function calling** capabilities. The agent can call tools to retrieve real-time data, perform calculations, or execute domain-specific logic before responding.
 

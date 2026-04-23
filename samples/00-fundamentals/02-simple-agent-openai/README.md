@@ -1,5 +1,7 @@
 ﻿# Fundamentals 02: Simple Agent with OpenAI / Change the AgentProvider
 
+[<- Back to Fundamentals Index](../README.md#code-flow-order)
+
 ## Quick Context
 This sample demonstrates a minimal Microsoft Agent Framework agent that uses OpenAI directly through the official OpenAI .NET SDK.
 
@@ -7,8 +9,6 @@ It focuses on the integration path from:
 - `OpenAIClient` and OpenAI model selection
 - to `AsIChatClient()` adapter conversion
 - to `AsAIAgent()` execution in Agent Framework
-
-This is a practical bridge sample if you want to use OpenAI-hosted models while keeping Agent Framework patterns.
 
 ---
 
@@ -27,14 +27,15 @@ Set these in `appsettings.json`: This is where we typically store things like:
   }
 }
 ```
+
+## How to create Agent 
+
+-  Create an AI agent from a ChatClient using OpenAIClient
+-  Add instructions to guide agent behavior
+-  Execute single-turn agent interactions
+-  Handle both streaming and non-streaming responses
+
 ---
-
-## Points to Consider
-
-- How to read OpenAI configuration from environment variables
-- How to create a `ChatClient` from `OpenAIClient`
-- Why `AsIChatClient()` is required before calling `AsAIAgent()`
-- How to run both full-response and streaming-response agent calls
 
 ## How It Works
 
@@ -57,5 +58,3 @@ AIAgent agent = chatClient
 
 - `RunAsync()` returns a complete response payload.
 - `RunStreamingAsync()` yields incremental response updates as they arrive.
-
-Using both in one sample helps you compare UX and implementation trade-offs.
